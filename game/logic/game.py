@@ -2,7 +2,7 @@ from typing import List
 import numpy as np
 from IPython import display
 from time import sleep
-
+import random
 import sys, os
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -14,8 +14,14 @@ class Game:
         self.game_env = np.zeros((10, 10))
         self.shapes: List[Shape] = []
 
+        self.make_shapes()
+
         self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
         self.reward_score: dict = {"no": -10, "yes": 10, "line": 20}
+
+        self.shapes_queue: List[Shape] = []
+        self.shapes_queue_max: int = 3
+        self.get_random_shapes(3)
     
     def make_shapes(self):
         # x x x x x
@@ -93,10 +99,15 @@ class Game:
         self.total_reward += reward
         return reward
     
-    def get_random_shape(self):
-        pass
+    def remove_shape(self, shape: Shape) -> None:
+        self.shapes_queue.remove(shape)
+    
+    def get_random_shapes(self, n: int = 1) -> None:
+        for i in range(n):
+            if len(self.shapes_queue)<self.shapes_queue_max:
+                self.shapes_queue.append(random.choice(self.shapes))
 
-    def step(self):
+    def step(self, shape: Shape, row: int, col: int):
         pass
     
     def add_shape_to_game_env(self, shape: Shape, row: int, col:int) -> int:
@@ -107,13 +118,13 @@ class Game:
             pass
         return points
         
-    def render(self):
+    def render(self) -> None:
         display.clear_output(wait=True)
         print(self.game_env)
         print(self.total_reward)
+        print(self.shapes_queue)
 
 a = Game()
-a.make_shapes()
 a.render()
 
 a.check_space_available(a.shapes[0], 0, 1)
