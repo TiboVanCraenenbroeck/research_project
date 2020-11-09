@@ -74,7 +74,7 @@ class Game:
         self.shapes.append(Shape(3, 3, [[-1, -1, 9], [-1, -1, 9], [9, 9, 9]]))
 
     
-    def check_space_available(self, shape: Shape, row: int, col: int) -> bool:
+    def check_space_available(self, shape: Shape, row: int, col: int) -> int:
         # Check if the space is available
         space_available: bool = True
         reward: int = 0
@@ -108,15 +108,15 @@ class Game:
                 self.shapes_queue.append(random.choice(self.shapes))
 
     def step(self, shape: Shape, row: int, col: int):
-        pass
-    
-    def add_shape_to_game_env(self, shape: Shape, row: int, col:int) -> int:
-        points: int = -10
-        # Check if the space is available
-        if self.check_space_available(shape, row, col):
-            # Add the shape in the grid
-            pass
-        return points
+        done: bool = False
+        # Set the shape in the game env
+        reward: int = self.check_space_available(shape, row, col)
+        # Add a new random chape to the queue
+        if reward>0:
+            self.remove_shape(shape)
+            self.get_random_shapes()
+
+        return reward, self.game_env, done, self.shapes_queue
         
     def render(self) -> None:
         display.clear_output(wait=True)
@@ -127,4 +127,6 @@ class Game:
 a = Game()
 a.render()
 
-a.check_space_available(a.shapes[0], 0, 1)
+a.step(a.shapes_queue[0], 0, 1)
+
+a.render()
