@@ -1,2 +1,9 @@
+import eel
+
+
 class GameView:
-    pass
+    def __init__(self):
+        eel.init("./game\web")
+        eel.start("index.html")
+    
+a = GameView()
