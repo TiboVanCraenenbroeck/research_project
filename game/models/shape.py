@@ -3,3 +3,4 @@ class Shape:
         self.nr_rows: int = nr_rows
         self.nr_cols: int = nr_cols
         self.shape: list = shape
+    

@@ -443,7 +443,43 @@ input:disabled {
   margin: 0.2rem;
 }
 
-.c-game-grid--cell[value="0"]
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: white;
+}
+.c-game-grid--cell[data-shape-nr="1"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="2"]
+{
+  background-color: green;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
+{
+  background-color: red;
+}
+.c-game-grid--cell[data-shape-nr="0"]
 {
   background-color: red;
 }

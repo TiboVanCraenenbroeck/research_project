@@ -17,111 +17,111 @@
     <!-- Menu -->
     <div class="c-menu">
         <span>Render:</span><button class="js-render">On</button>
-        <span>Total points: </span>
+        <span>Total points:</span><span class="js-total_score"></span>
     </div>
     <div class="c-game">
         <!-- Game Grid - 10x10-->
         <div class="c-game-grid">
-            <div class="c-game-grid--cell" value="0"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
-            <div class="c-game-grid--cell"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
+            <div class="c-game-grid--cell js-game-grid--cell" data-shape-nr="0"></div>
         </div>
     </div>
 </body>

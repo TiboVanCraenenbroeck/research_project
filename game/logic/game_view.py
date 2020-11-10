@@ -17,18 +17,18 @@ class GameView:
         ip = socket.gethostbyname(hostname)
         eel.start("index.html", port=80, host=ip, block=False)
     
-    def change_game_view(self):
-        data = "Test"
-        eel.changeGameGrid(data)
+    def change_game_view(self, grid, score, shape_queue):
+        test = "Hallo"
+        eel.changeGameGrid(grid, score, shape_queue)
         print("send!")
     
     @eel.expose
-    def my_python_function(data):
-        print(data)
+    def startBackend(data):
+        eel.startFront(data)
 
 
-
+""" 
 a = GameView()
 
 while True:
-    eel.sleep(1)
+    eel.sleep(1) """

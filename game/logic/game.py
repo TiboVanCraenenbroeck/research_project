@@ -2,12 +2,13 @@ from typing import List
 import numpy as np
 from IPython import display
 from time import sleep
-import random
+import random, eel, json
 import sys, os
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
 sys.path.insert(0, BASE_DIR)
 from models.shape import Shape
+from logic.game_view import GameView
 class Game:
     def __init__(self):
         # 10x10
@@ -22,6 +23,8 @@ class Game:
         self.shapes_queue: List[Shape] = []
         self.shapes_queue_max: int = 3
         self.get_random_shapes(3)
+
+        self.game_view = GameView()
     
     def make_shapes(self):
         # x x x x x
@@ -119,14 +122,22 @@ class Game:
         return reward, self.game_env, done, self.shapes_queue
         
     def render(self) -> None:
-        display.clear_output(wait=True)
+        game_env = json.dumps(self.game_env.tolist())
+        print(type(game_env), game_env)
+        shape_queue: list = [{"nr_rows": sq.nr_rows, "nr_cols": sq.nr_cols, "shape": sq.shape} for sq in self.shapes_queue]
+        self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
+
+"""         display.clear_output(wait=True)
         print(self.game_env)
         print(self.total_reward)
-        print(self.shapes_queue)
+        print(self.shapes_queue) """
 
 a = Game()
 a.render()
-
+eel.sleep(3)
 a.step(a.shapes_queue[0], 0, 1)
 
 a.render()
+
+while True:
+    eel.sleep(1)

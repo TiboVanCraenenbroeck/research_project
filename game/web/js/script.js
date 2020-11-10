@@ -1,17 +1,34 @@
-eel.expose(changeGameGrid);
-function changeGameGrid(data){
-    alert(data)
+let domGameGridCell;
+let domLoaded = false;
+
+eel.expose(startFront);
+function startFront(data) {
+  console.log(data);
+  loadDom();
 }
-/* const changeGameGrid = function (data) {
-  alert(data)
-}; */
+eel.expose(changeGameGrid);
+function changeGameGrid(grid, score, shape_queue) {
+  console.log(grid);
+  grid_json = JSON.parse(grid);
+  if (domLoaded) {
+    let divNr = 0;
+    for (const row of grid_json) {
+      for (const col of row) {
+        domGameGridCell[divNr].setAttribute("data-shape-nr", `${col}`);
+        divNr++;
+      }
+    }
+  }
+}
 
 const loadExposes = function () {
-    changeGameGrid("Blob")
-    eel.my_python_function("Dit is een test")
+  eel.startBackend("System Started!");
 };
-
+const loadDom = function () {
+  domGameGridCell = document.querySelectorAll(".js-game-grid--cell");
+  domLoaded = true;
+};
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("Loaded!");
+  console.log("JS loaded!");
   loadExposes();
 });
