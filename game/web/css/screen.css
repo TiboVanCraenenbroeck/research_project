@@ -50,17 +50,17 @@ html {
   transition: var(--global-transition);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    /* filter: invert(1) hue-rotate(180deg); */
+    /* filter: invert(1) hue-rotate(180deg);
     --global-textColor: var(--global-color--white);
     --global-backgroundColor: var(--global-color--dark);
-  }
+  } */
 
   /* img {
     filter: invert(1) hue-rotate(180deg);
-  } */
-}
+  } 
+}*/
 
 /* Scollbar */
 ::-webkit-scrollbar {
@@ -411,14 +411,42 @@ input:disabled {
 /*------------------------------------*\
 #COMPONENTS
 \*------------------------------------*/
+.c-game{
+  --game--size: 33rem;
+
+  display: flex;
+
+  justify-content: center;
+  width: 100%;
+}
 .c-game-grid {
   display: grid;
   grid-template-columns: repeat(10, auto);
   grid-template-rows: repeat(10, auto);
-  grid-row-gap: 1rem;
-  padding-bottom: 1rem;
+  /* grid-row-gap: 4px; */
+  /* padding-bottom: 1rem; */
+  
+  width: 100%;
+  height: 100%;
+
+  height: var(--game--size);
+  width: var(--game--size);
+
 }
 
+.c-game-grid--cell{
+  background-color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  
+  margin: 0.2rem;
+}
+
+.c-game-grid--cell[value="0"]
+{
+  background-color: red;
+}
 /*------------------------------------*\
 #UTILITIES
 \*------------------------------------*/
