@@ -138,6 +138,9 @@ eel.sleep(3)
 a.step(a.shapes_queue[0], 0, 1)
 
 a.render()
+eel.sleep(3)
+a.step(a.shapes_queue[0], 5, 5)
+a.render()
 
 while True:
     eel.sleep(1)
