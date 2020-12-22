@@ -18,7 +18,6 @@ class GameView:
         eel.start("index.html", port=80, host=ip, block=False)
     
     def change_game_view(self, grid, score, shape_queue):
-        test = "Hallo"
         eel.changeGameGrid(grid, score, shape_queue)
         print("send!")
     

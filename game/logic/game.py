@@ -123,7 +123,6 @@ class Game:
         
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())
-        print(type(game_env), game_env)
         shape_queue: list = [{"nr_rows": sq.nr_rows, "nr_cols": sq.nr_cols, "shape": sq.shape} for sq in self.shapes_queue]
         self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
 
