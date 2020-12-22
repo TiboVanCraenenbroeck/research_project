@@ -40,8 +40,8 @@ class Game:
         x   | xx |  xx |   x
         xx  | x  |   x |  xx
          """
-        self.shapes.append(Shape(2, 2, [[4], [4, 4]]))
-        self.shapes.append(Shape(2, 2, [[4, 4], [4]]))
+        self.shapes.append(Shape(2, 2, [[4, -1], [4, 4]]))
+        self.shapes.append(Shape(2, 2, [[4, 4], [4, -1]]))
         self.shapes.append(Shape(2, 2, [[4, 4], [-1, 4]]))
         self.shapes.append(Shape(2, 2, [[-1, 4], [4, 4]]))
 
