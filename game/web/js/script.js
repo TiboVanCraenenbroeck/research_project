@@ -1,4 +1,4 @@
-let domGameGridCell, domTotScore, domShapeQueue;
+let domGameGrid, domGameGridCell, domTotScore, domShapeQueue;
 let domLoaded = false;
 
 eel.expose(startFront);
@@ -17,11 +17,11 @@ const changeGrid = async function (grid) {
     }
   }
 };
-const createShape = async function(shape){
-  let output = ""
+const createShape = async function (shape) {
+  let output = "";
   for (const s of shape) {
     for (const c of s) {
-      output += `<div class="c-queue-shape--shape c-cell--color" data-shape-nr="${c}"></div>`
+      output += `<div class="c-queue-shape--shape c-cell--color" data-shape-nr="${c}"></div>`;
     }
   }
   return output;
@@ -52,6 +52,8 @@ const changeGame = async function (grid, score, shapeQueue) {
   changeGrid(grid);
   await changeScore(score);
 };
+
+/* EEL */
 eel.expose(changeGameGrid);
 function changeGameGrid(grid, score, shape_queue) {
   changeGame(grid, score, shape_queue);
@@ -61,6 +63,7 @@ const loadExposes = function () {
   eel.startBackend("System Started!");
 };
 const loadDom = function () {
+  domGameGrid = document.querySelector(".js-game-grid");
   domGameGridCell = document.querySelectorAll(".js-game-grid--cell");
   domTotScore = document.querySelector(".js-tot-score");
   domShapeQueue = document.querySelectorAll(".js-game-shapes-queue--shape");

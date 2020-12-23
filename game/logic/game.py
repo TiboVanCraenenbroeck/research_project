@@ -141,5 +141,9 @@ eel.sleep(3)
 a.step(a.shapes_queue[0], 5, 5)
 a.render()
 
+
+eel.sleep(3)
+
+a.game_view.create_img_test(a.game_env, a.shapes_queue)
 while True:
     eel.sleep(1)
