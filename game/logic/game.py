@@ -119,6 +119,7 @@ class Game:
             self.remove_shape(shape)
             self.get_random_shapes()
 
+        self.game_view.create_screenshot(self.game_env, self.shapes_queue)
         return reward, self.game_env, done, self.shapes_queue
         
     def render(self) -> None:
@@ -141,9 +142,5 @@ eel.sleep(3)
 a.step(a.shapes_queue[0], 5, 5)
 a.render()
 
-
-eel.sleep(3)
-
-a.game_view.create_img_test(a.game_env, a.shapes_queue)
 while True:
     eel.sleep(1)

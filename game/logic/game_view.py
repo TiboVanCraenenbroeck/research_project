@@ -44,7 +44,7 @@ class GameView:
         options = {'width': width, 'disable-smart-width': ''}
         imgkit.from_string(body, f'{self.base_dictionary}/{type}/{type}_{self.iteration}{name}.jpg', config=config, options=options)
 
-    def creagte_img_game_grid(self, game_grid, style):
+    def create_img_game_grid(self, game_grid, style):
         body: str = style + """<table>"""
         for row in game_grid:
             body += "<tr>"
@@ -82,7 +82,7 @@ class GameView:
             self.create_img("queue_shapes", body, 48, index_shape)
 
     
-    def create_img_test(self, game_grid, game_queue):
+    def create_screenshot(self, game_grid, game_queue):
         style: str = """<style>
             td{
                 border: 1px solid black;
@@ -95,7 +95,8 @@ class GameView:
                 background-color: white;
             }
         </style>"""
-        self.creagte_img_game_grid(game_grid, style)
+        self.create_img_game_grid(game_grid, style)
         self.create_img_shape_queue(game_queue)
+        self.iteration += 1
 
 
