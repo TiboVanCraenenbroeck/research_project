@@ -12,6 +12,7 @@ from logic.game_view import GameView
 class Game:
     def __init__(self):
         # 10x10
+        self.game_play: bool = True
         self.game_env = np.zeros((10, 10))
         self.shapes: List[Shape] = []
 
@@ -75,6 +76,34 @@ class Game:
         self.shapes.append(Shape(3, 3, [[9, 9, 9], [-1, -1, 9], [-1, -1, 9]]))
         self.shapes.append(Shape(3, 3, [[9, 9, 9], [9, -1, -1], [9, -1, -1]]))
         self.shapes.append(Shape(3, 3, [[-1, -1, 9], [-1, -1, 9], [9, 9, 9]]))
+    
+    def check_on_full_lines(self):
+        # Check the rows and columns
+        game_env_reversed = self.game_env.copy()
+        del_rows: list = self.check_on_full_lines_rows(game_env_reversed)
+        game_env_reversed = game_env_reversed.T
+        del_cols: list = self.check_on_full_lines_rows(game_env_reversed)
+
+        # Set the rows and columns on 0.0 on the selected lines
+        # For the columns
+        for row in del_rows:
+            game_env_reversed[row] = [0.0 for i in game_env_reversed[row]]
+        # For the rows
+        game_env_reversed = game_env_reversed.T
+        for col in del_cols:
+            game_env_reversed[col] = [0.0 for i in game_env_reversed[col]]
+
+        # Copy the game_env_reversed to the self.game_env
+        self.game_env = game_env_reversed.copy()
+    
+    def check_on_full_lines_rows(self, env):
+        del_rows: list = []
+        for index_row, row in enumerate(env):
+            min: int = np.min(row)
+            if min > 0: del_rows.append(index_row)
+        return del_rows
+
+            
 
     
     def check_space_available(self, shape: Shape, row: int, col: int) -> int:
@@ -85,6 +114,10 @@ class Game:
         for r in range(shape.nr_rows):
             # Check cols
             for c in range(shape.nr_cols):
+                # Check if the cell is not out of the grid
+                if r + row >= 10 or c + col >= 10:
+                    space_available = False
+                    break
                 nr_cols_available = self.game_env[r+row, c+col]
                 # Check if it is an empty block
                 if shape.shape[r][c] != -1:
@@ -119,7 +152,9 @@ class Game:
             self.remove_shape(shape)
             self.get_random_shapes()
 
+        # TODO: Add the iteration-number to the return
         self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        self.check_on_full_lines()
         return reward, self.game_env, done, self.shapes_queue
         
     def render(self) -> None:
@@ -133,14 +168,27 @@ class Game:
         print(self.shapes_queue) """
 
 a = Game()
+eel.sleep(3)
 a.render()
 eel.sleep(3)
+"""eel.sleep(3)
 a.step(a.shapes_queue[0], 0, 1)
 
 a.render()
 eel.sleep(3)
 a.step(a.shapes_queue[0], 5, 5)
-a.render()
+a.render()"""
+
+
+while a.game_play:
+    input_shape: int = int(input("Select a shape (0, 1, 2): "))
+    input_place_row: int = int(input("Row: "))
+    input_place_col: int = int(input("Col: "))
+    a.step(a.shapes_queue[input_shape], input_place_row, input_place_col)
+    a.render()
+    eel.sleep(1)
+
+
 
 while True:
     eel.sleep(1)
