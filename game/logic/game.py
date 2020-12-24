@@ -86,15 +86,18 @@ class Game:
 
         # Set the rows and columns on 0.0 on the selected lines
         # For the columns
-        for row in del_rows:
-            game_env_reversed[row] = [0.0 for i in game_env_reversed[row]]
-        # For the rows
-        game_env_reversed = game_env_reversed.T
         for col in del_cols:
             game_env_reversed[col] = [0.0 for i in game_env_reversed[col]]
+        # For the rows
+        game_env_reversed = game_env_reversed.T
+        for row in del_rows:
+            game_env_reversed[row] = [0.0 for i in game_env_reversed[row]]
 
         # Copy the game_env_reversed to the self.game_env
         self.game_env = game_env_reversed.copy()
+
+        reward: float = (len(del_rows) + len(del_cols)) * self.reward_score["line"] 
+        return reward
     
     def check_on_full_lines_rows(self, env):
         del_rows: list = []
@@ -103,9 +106,6 @@ class Game:
             if min > 0: del_rows.append(index_row)
         return del_rows
 
-            
-
-    
     def check_space_available(self, shape: Shape, row: int, col: int) -> int:
         # Check if the space is available
         space_available: bool = True
@@ -153,7 +153,7 @@ class Game:
             self.get_random_shapes()
 
         # TODO: Add the iteration-number to the return
-        self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        reward += self.game_view.create_screenshot(self.game_env, self.shapes_queue)
         self.check_on_full_lines()
         return reward, self.game_env, done, self.shapes_queue
         
