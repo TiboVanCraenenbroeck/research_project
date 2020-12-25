@@ -12,20 +12,24 @@ from logic.game_view import GameView
 class Game:
     def __init__(self):
         # 10x10
-        self.game_play: bool = True
-        self.game_env = np.zeros((10, 10))
         self.shapes: List[Shape] = []
 
         self.make_shapes()
 
-        self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
         self.reward_score: dict = {"no": -10, "yes": 10, "line": 20}
 
-        self.shapes_queue: List[Shape] = []
         self.shapes_queue_max: int = 3
-        self.get_random_shapes(3)
+
+        self.reset()
 
         self.game_view = GameView()
+    
+    def reset(self):
+        self.game_play = True
+        self.game_env = np.zeros((10,10))
+        self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
+        self.shapes_queue: List[Shape] = []
+        self.get_random_shapes(3)
     
     def make_shapes(self):
         # x x x x x
@@ -143,7 +147,8 @@ class Game:
             reward *= self.reward_score["yes"]
         else:
             reward = -10
-        self.total_reward += reward
+        if change_game_grid:
+            self.total_reward += reward
         return reward
     
     def remove_shape(self, shape: Shape) -> None:
@@ -164,12 +169,11 @@ class Game:
             self.get_random_shapes()
 
         # TODO: Add the iteration-number to the return
-        # TODO: Create a function that checks if there is enough space for the shapes
-        # TODO:Check error als shape buiten game_grid komt
+        # TODO: Check function that checks if there is enough space for the shapes
         reward += self.check_on_full_lines()
         self.check_if_user_can_place_the_shapes()
-        self.game_view.create_screenshot(self.game_env, self.shapes_queue)
-        return reward, self.game_env, done, self.shapes_queue
+        iteration:int = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        return reward, self.game_env, done, self.shapes_queue, iteration
         
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())

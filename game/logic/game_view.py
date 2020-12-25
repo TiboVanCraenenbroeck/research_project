@@ -98,5 +98,6 @@ class GameView:
         self.create_img_game_grid(game_grid, style)
         self.create_img_shape_queue(game_queue)
         self.iteration += 1
+        return self.iteration
 
 
