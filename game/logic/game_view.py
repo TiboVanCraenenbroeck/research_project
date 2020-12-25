@@ -13,6 +13,7 @@ https://nitratine.net/blog/post/python-gui-using-chrome/
 
 
 class GameView:
+    render: bool = True
     def __init__(self):
         self.reset()
         eel.init("./game/web")
@@ -30,15 +31,23 @@ class GameView:
         hostname = socket.gethostname()
         ip = socket.gethostbyname(hostname)
         eel.start("index.html", port=80, host=ip, block=False)
+        eel.sleep(1)
 
-    def change_game_view(self, grid, score, shape_queue):
-        eel.changeGameGrid(grid, score, shape_queue)
-        print("send!")
 
     @eel.expose
     def startBackend(data):
         eel.startFront(data)
     
+    def change_game_view(self, grid, score, shape_queue):
+        eel.changeGameGrid(grid, score, shape_queue)
+        print("send!")
+    
+    @eel.expose
+    def change_render_state():
+        GameView.render = not GameView.render
+        eel.changedRender(GameView.render)
+
+
     def create_img(self, type: str, body: str, width: int, name: str = "") -> None:
         config = imgkit.config(wkhtmltoimage='C:/Program Files/wkhtmltopdf/bin/wkhtmltoimage.exe')
         options = {'width': width, 'disable-smart-width': ''}

@@ -168,7 +168,6 @@ class Game:
             self.remove_shape(shape)
             self.get_random_shapes()
 
-        # TODO: Add the iteration-number to the return
         # TODO: Check function that checks if there is enough space for the shapes
         reward += self.check_on_full_lines()
         self.check_if_user_can_place_the_shapes()
@@ -178,7 +177,9 @@ class Game:
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())
         shape_queue: list = [{"nr_rows": sq.nr_rows, "nr_cols": sq.nr_cols, "shape": sq.shape} for sq in self.shapes_queue]
-        self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
+        # Check if the user will see the changes in the app
+        if self.game_view.render:
+            self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
 
 """         display.clear_output(wait=True)
         print(self.game_env)
@@ -210,3 +211,6 @@ while a.game_play:
 
 while True:
     eel.sleep(1)
+
+
+# TODO: Render function on and off --> To slow
