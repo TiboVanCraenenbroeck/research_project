@@ -1,1 +1,2 @@
 [1223/171955.477:ERROR:directory_reader_win.cc(43)] FindFirstFile: Het systeem kan het opgegeven pad niet vinden. (0x3)
+[1225/120211.199:ERROR:file_io.cc(90)] ReadExactly: expected 36, observed 0

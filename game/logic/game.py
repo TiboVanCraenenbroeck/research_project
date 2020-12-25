@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 from IPython import display
-from time import sleep
+from time import sleep, time, strftime, gmtime
 import random, eel, json
 import sys, os
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -105,8 +105,18 @@ class Game:
             min: int = np.min(row)
             if min > 0: del_rows.append(index_row)
         return del_rows
+    
+    def check_if_user_can_place_the_shapes(self):
+        can_set_shapes: int = False
+        for index_row, row in enumerate(self.game_env):
+            for index_col, col in enumerate(row):
+                for shape in self.shapes_queue:
+                    can_set_shapes = self.check_space_available(shape, index_row, index_col, False)
+                    if can_set_shapes>0:
+                        return True
+        return False
 
-    def check_space_available(self, shape: Shape, row: int, col: int) -> int:
+    def check_space_available(self, shape: Shape, row: int, col: int, change_game_grid: bool = True) -> int:
         # Check if the space is available
         space_available: bool = True
         reward: int = 0
@@ -125,7 +135,8 @@ class Game:
                     if nr_cols_available>0 and shape.shape[r][c]>0:
                         space_available = False
                         break
-                    game_env[r+row, c+col] = shape.shape[r][c]
+                    if change_game_grid:
+                        game_env[r+row, c+col] = shape.shape[r][c]
         # Replace the game_env with the new one if their is enough space
         if space_available == True:
             self.game_env = game_env
@@ -153,8 +164,11 @@ class Game:
             self.get_random_shapes()
 
         # TODO: Add the iteration-number to the return
-        reward += self.game_view.create_screenshot(self.game_env, self.shapes_queue)
-        self.check_on_full_lines()
+        # TODO: Create a function that checks if there is enough space for the shapes
+        # TODO:Check error als shape buiten game_grid komt
+        reward += self.check_on_full_lines()
+        self.check_if_user_can_place_the_shapes()
+        self.game_view.create_screenshot(self.game_env, self.shapes_queue)
         return reward, self.game_env, done, self.shapes_queue
         
     def render(self) -> None:
