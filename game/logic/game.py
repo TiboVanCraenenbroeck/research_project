@@ -7,6 +7,8 @@ import sys, os
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
 sys.path.insert(0, BASE_DIR)
+BASE_DIR = os.path.dirname(BASE_DIR)
+sys.path.insert(0, BASE_DIR)
 from models.shape import Shape
 from logic.game_view import GameView
 class Game:
@@ -19,10 +21,8 @@ class Game:
         self.reward_score: dict = {"no": -10, "yes": 10, "line": 20}
 
         self.shapes_queue_max: int = 3
-
-        self.reset()
-
         self.game_view = GameView()
+        self.reset()
     
     def reset(self):
         self.game_play = True
@@ -30,6 +30,9 @@ class Game:
         self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
         self.shapes_queue: List[Shape] = []
         self.get_random_shapes(3)
+        self.game_view.reset()
+        uid: str = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        return uid
     
     def make_shapes(self):
         # x x x x x
@@ -117,8 +120,8 @@ class Game:
                 for shape in self.shapes_queue:
                     can_set_shapes = self.check_space_available(shape, index_row, index_col, False)
                     if can_set_shapes>0:
-                        return True
-        return False
+                        return False
+        return True
 
     def check_space_available(self, shape: Shape, row: int, col: int, change_game_grid: bool = True) -> int:
         # Check if the space is available
@@ -170,9 +173,9 @@ class Game:
 
         # TODO: Check function that checks if there is enough space for the shapes
         reward += self.check_on_full_lines()
-        self.check_if_user_can_place_the_shapes()
-        iteration:int = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
-        return reward, self.game_env, done, self.shapes_queue, iteration
+        done = self.check_if_user_can_place_the_shapes()
+        uid:str = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        return reward, self.game_env, done, self.shapes_queue, uid
         
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())
@@ -186,10 +189,11 @@ class Game:
         print(self.total_reward)
         print(self.shapes_queue) """
 
-a = Game()
+""" a = Game()
 eel.sleep(3)
 a.render()
-eel.sleep(3)
+eel.sleep(3) """
+
 """eel.sleep(3)
 a.step(a.shapes_queue[0], 0, 1)
 
@@ -199,7 +203,7 @@ a.step(a.shapes_queue[0], 5, 5)
 a.render()"""
 
 
-while a.game_play:
+""" while a.game_play:
     input_shape: int = int(input("Select a shape (0, 1, 2): "))
     input_place_row: int = int(input("Row: "))
     input_place_col: int = int(input("Col: "))
@@ -210,7 +214,9 @@ while a.game_play:
 
 
 while True:
-    eel.sleep(1)
+    eel.sleep(1) """
 
 
 # TODO: Render function on and off --> To slow
+# TODO: Naam teruggeven bij het maken van een nieuwe map
+# TODO: game_state --> Als er geen acties meer mogelijk zijn --> Deze op false zetten

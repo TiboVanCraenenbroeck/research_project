@@ -5,6 +5,16 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+
+import uuid
+
+import sys, os
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(PROJECT_ROOT)
+sys.path.insert(0, BASE_DIR)
+BASE_DIR = os.path.dirname(BASE_DIR)
+sys.path.insert(0, BASE_DIR)
+
 """ 
 BRON
 https://pypi.org/project/Eel/
@@ -16,11 +26,11 @@ class GameView:
     render: bool = True
     def __init__(self):
         self.reset()
-        eel.init("./game/web")
+        eel.init(f"{BASE_DIR}/game/web")
         self.start()
     
     def reset(self):
-        self.base_dictionary: str = f"./game_history/{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
+        self.base_dictionary: str = f"{BASE_DIR}/game_history/{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
         self.iteration: int = 0
         Path(self.base_dictionary).mkdir(parents=True, exist_ok=True)
         Path(f"{self.base_dictionary}/game_gird").mkdir(parents=True, exist_ok=True)
@@ -48,12 +58,12 @@ class GameView:
         eel.changedRender(GameView.render)
 
 
-    def create_img(self, type: str, body: str, width: int, name: str = "") -> None:
+    def create_img(self, type: str, body: str, width: int, uid:str, name: str = "") -> None:
         config = imgkit.config(wkhtmltoimage='C:/Program Files/wkhtmltopdf/bin/wkhtmltoimage.exe')
         options = {'width': width, 'disable-smart-width': ''}
-        imgkit.from_string(body, f'{self.base_dictionary}/{type}/{type}_{self.iteration}{name}.jpg', config=config, options=options)
+        imgkit.from_string(body, f'{self.base_dictionary}/{type}/{type}_{uid}{name}.jpg', config=config, options=options)
 
-    def create_img_game_grid(self, game_grid, style):
+    def create_img_game_grid(self, game_grid, style, uid):
         body: str = style + """<table>"""
         for row in game_grid:
             body += "<tr>"
@@ -61,9 +71,9 @@ class GameView:
                 body += f"<td data-shape-nr='{c}'></td>"
             body += "</tr>"
         body += "</table>"
-        self.create_img("game_gird", body, 78)
+        self.create_img("game_gird", body, 78, uid)
     
-    def create_img_shape_queue(self, shape_queue):
+    def create_img_shape_queue(self, shape_queue, uid):
         style: str = """<style>
             td{
                 border: 1px solid black;
@@ -88,7 +98,7 @@ class GameView:
                     body += f"<td data-shape-nr='{col}'></td>"
                 body += "</tr>"
             body += "</table>"
-            self.create_img("queue_shapes", body, 48, index_shape)
+            self.create_img("queue_shapes", body, 48, uid, index_shape)
 
     
     def create_screenshot(self, game_grid, game_queue):
@@ -104,9 +114,10 @@ class GameView:
                 background-color: white;
             }
         </style>"""
-        self.create_img_game_grid(game_grid, style)
-        self.create_img_shape_queue(game_queue)
+        uid: str = str(uuid.uuid4())
+        self.create_img_game_grid(game_grid, style, uid)
+        self.create_img_shape_queue(game_queue, uid)
         self.iteration += 1
-        return self.iteration
+        return uid
 
 
