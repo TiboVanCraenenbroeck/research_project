@@ -16,6 +16,7 @@ disable_eager_execution()
 import eel
 from datetime import datetime
 from pathlib import Path
+import pickle
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -29,12 +30,15 @@ class REINFORCE:
         eel.sleep(1)
         self.state_shape = (100)  # the state space
         self.action_shape = 300  # the action space
-        self.gamma = 0.99  # decay rate of past observations
+        self.gamma = 0.3  # decay rate of past observations
         self.alpha = 1e-4  # learning rate of gradient
-        self.learning_rate = 0.01  # learning of deep learning model
-
+        self.learning_rate = 0.0001  # learning of deep learning model
+        
+        self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
+        self.model_name = f"model_{self.agent_name}.h5"
         if not path:
             self.model = self.build_policy_network()  # build model
+            self.save_model()
         else:
             self.model = self.load_model(path)  # import model
 
@@ -45,6 +49,10 @@ class REINFORCE:
         self.probs = []
         self.discounted_rewards = []
         self.total_rewards = []
+    
+    def save_model(self):
+        Path(f"{BASE_DIR}/start_models/REINFORCE").mkdir(parents=True, exist_ok=True)
+        self.model.save(f"{BASE_DIR}/start_models/REINFORCE/{self.model_name}")
 
     def build_policy_network(self):
         # BUILD MODEL ####################################################################
@@ -58,32 +66,32 @@ class REINFORCE:
         model_game_grid = Flatten()(model_game_grid)
         model_game_grid = Model(inputs=input_game_grid,outputs=model_game_grid, name="Model_GameGrid")
 
-        model_shape_queue_0 = Conv2D(3, (3, 3))(input_shape_queue_0)
-        model_shape_queue_0 = Conv2D(3, (3, 3))(model_shape_queue_0)
+        model_shape_queue_0 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_0)
+        model_shape_queue_0 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_0)
         model_shape_queue_0 = Flatten()(model_shape_queue_0)
         model_shape_queue_0 = Model(inputs=input_shape_queue_0, outputs=model_shape_queue_0, name="Model_ShapeQueue_0")
 
-        model_shape_queue_1 = Conv2D(3, (3, 3))(input_shape_queue_1)
-        model_shape_queue_1 = Conv2D(3, (3, 3))(model_shape_queue_1)
+        model_shape_queue_1 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_1)
+        model_shape_queue_1 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_1)
         model_shape_queue_1 = Flatten()(model_shape_queue_1)
         model_shape_queue_1 = Model(inputs=input_shape_queue_1, outputs=model_shape_queue_1, name="Model_ShapeQueue_1")
 
-        model_shape_queue_2 = Conv2D(3, (3, 3))(input_shape_queue_2)
-        model_shape_queue_2 = Conv2D(3, (3, 3))(model_shape_queue_2)
+        model_shape_queue_2 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_2)
+        model_shape_queue_2 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_2)
         model_shape_queue_2 = Flatten()(model_shape_queue_2)
         model_shape_queue_2 = Model(inputs=input_shape_queue_2, outputs=model_shape_queue_2, name="Model_ShapeQueue_2")
 
         combined = concatenate([model_game_grid.output, model_shape_queue_0.output,model_shape_queue_1.output, model_shape_queue_2.output])
 
-        model_output = Dense(32, activation="relu")(combined)
+        model_output = Dense(1024, activation="relu")(combined)
+        model_output = Dense(1024, activation="relu")(model_output)
+        model_output = Dense(512, activation="relu")(model_output)
+        model_output = Dense(512, activation="relu")(model_output)
         model_output = Dense(self.action_shape, activation="softmax")(model_output)
         model_output = Model(inputs=[model_game_grid.input, model_shape_queue_0.input, model_shape_queue_1.input, model_shape_queue_2.input], outputs=model_output, name="Model_Output")
 
         model_output.compile(loss="categorical_crossentropy",
                              optimizer=Adam(lr=self.learning_rate))
-
-        Path(f"{BASE_DIR}/start_models/REINFORCE/").mkdir(parents=True, exist_ok=True)
-        model_output.save(f"{BASE_DIR}/start_models/REINFORCE/{datetime.now().strftime('%d_%m_%y__%H_%M%S')}.h5")
 
         return model_output
 
@@ -191,7 +199,7 @@ class REINFORCE:
         history = self.model.train_on_batch([imgs_game_grid, imgs_shape_queue0, imgs_shape_queue1, imgs_shape_queue2], y_train)
 
         self.uids, self.probs, self.gradients, self.rewards = [], [], [], []
-
+        self.save_model()
         return history
 
     def train(self, episodes):
@@ -202,7 +210,9 @@ class REINFORCE:
             self.env.render()
             done: bool = False
             total_reward_episode: float = 0
+            negative_rewards: int = 0
             while not done:
+                start_time_1 = time.time()
                 action, prob = self.compute_action(uid)
                 action_shape, action_row, action_col = self.number_to_arc(
                     action)
@@ -211,11 +221,22 @@ class REINFORCE:
                 self.remember(uid, action, prob, reward)
                 total_reward_episode += reward
                 self.env.render()
+                # Stop the episode if the agent makes 10 mistakes
+                if reward < 0:
+                    negative_rewards += 1
+                    if negative_rewards >= 10 :
+                        done = True
+                elif reward > 0 and negative_rewards>0:
+                    negative_rewards = 0
+                stop_time_1 = time.time() - start_time_1
+                print(f"Total time: {stop_time_1}")
 
             history = self.train_policy_network()
             self.total_rewards.append(total_reward_episode)
             if episode % 25 == 0:
                 print(f"Episode: {episode} - total reward: {total_reward_episode} | Duration: {time.time()-start_time}")
+            with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
+                pickle.dump(self.total_rewards, f)
 
     def hot_encode_action(self, action):
         action_encoded = np.zeros(self.action_shape)

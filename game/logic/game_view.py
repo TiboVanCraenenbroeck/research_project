@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
+from threading import Thread
+
 import uuid
 
 import sys, os
@@ -115,8 +117,20 @@ class GameView:
             }
         </style>"""
         uid: str = str(uuid.uuid4())
-        self.create_img_game_grid(game_grid, style, uid)
-        self.create_img_shape_queue(game_queue, uid)
+        t_create_img_game_grid = Thread(target=self.create_img_game_grid, args=(game_grid, style, uid, ))
+        t_create_img_shape_queue = Thread(target=self.create_img_shape_queue, args=(game_queue, uid, ))
+        t_create_img_game_grid.start()
+        t_create_img_shape_queue.start()
+        try:
+            t_create_img_game_grid.join()
+        except:
+            pass
+        try:
+            t_create_img_shape_queue.join()
+        except:
+            pass
+        """ self.create_img_game_grid(game_grid, style, uid)
+        self.create_img_shape_queue(game_queue, uid) """
         self.iteration += 1
         return uid
 
