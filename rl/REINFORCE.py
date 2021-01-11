@@ -48,7 +48,8 @@ class REINFORCE:
         self.rewards = []
         self.probs = []
         self.discounted_rewards = []
-        self.total_rewards = []
+        self.actions = []
+        self.stats: dict = {"total_rewards" : [], "chosen_action": []}
     
     def save_model(self):
         Path(f"{BASE_DIR}/start_models/REINFORCE").mkdir(parents=True, exist_ok=True)
@@ -93,6 +94,48 @@ class REINFORCE:
         model_output.compile(loss="categorical_crossentropy",
                              optimizer=Adam(lr=self.learning_rate))
 
+        """ model_shape_queue_0 = Flatten()(input_shape_queue_0)
+
+        model_shape_queue_0 = Dense(100,kernel_initializer=initializers.he_normal())(model_shape_queue_0)
+        model_shape_queue_0 = LeakyReLU()(model_shape_queue_0) """
+        #model_shape_queue_0 = Model(inputs=input_shape_queue_0, outputs=model_shape_queue_0, name="Model_ShapeQueue_0")
+        
+        """ model_shape_queue_1 = Conv2D(representations_conv, (1, 1), kernel_initializer=initializers.he_normal())(input_shape_queue_1)
+        model_shape_queue_1 = LeakyReLU()(model_shape_queue_1) """
+
+        """ model_shape_queue_1 = Flatten()(input_shape_queue_1)
+
+        model_shape_queue_1 = Dense(100,kernel_initializer=initializers.he_normal())(model_shape_queue_1)
+        model_shape_queue_1 = LeakyReLU()(model_shape_queue_1) """
+        #model_shape_queue_1 = Model(inputs=input_shape_queue_1, outputs=model_shape_queue_1, name="Model_ShapeQueue_1")
+        
+        """ model_shape_queue_2 = Conv2D(representations_conv, (1, 1), kernel_initializer=initializers.he_normal())(input_shape_queue_2)
+        model_shape_queue_2 = LeakyReLU()(model_shape_queue_2) """
+
+        """ model_shape_queue_2 = Flatten()(input_shape_queue_2)
+
+        model_shape_queue_2 = Dense(100,kernel_initializer=initializers.he_normal())(model_shape_queue_2)
+        model_shape_queue_2 = LeakyReLU()(model_shape_queue_2)  """
+        #model_shape_queue_2 = Model(inputs=input_shape_queue_2, outputs=model_shape_queue_2, name="Model_ShapeQueue_2")
+
+
+        model_output = concatenate([input_game_grid, input_shape_queue_0, input_shape_queue_1, input_shape_queue_2])
+        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = LeakyReLU()(model_output)
+        
+        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = LeakyReLU()(model_output)
+        
+        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = LeakyReLU()(model_output)
+        
+        model_output = Flatten()(model_output)
+        
+        model_output = Dense(self.action_shape, activation="softmax",kernel_initializer=initializers.he_normal())(model_output)
+        model_output = Model(inputs=[input_game_grid, input_shape_queue_0, input_shape_queue_1, input_shape_queue_2], outputs=model_output, name="Model_Output")
+
+        model_output.compile(loss="categorical_crossentropy", optimizer=Adam(lr=self.learning_rate))
+        print(model_output.summary())
         return model_output
 
     def hot_encode_action(self, action):
@@ -101,13 +144,14 @@ class REINFORCE:
 
         return action_encoded
 
-    def remember(self, uid, action, action_prob, reward):
+    def remember(self,state, shapes_queue,uid, action, action_prob, reward, action_shape):
         # STORE EACH STATE, ACTION AND REWARD into the episodic memory #############################
         encoded_action = self.hot_encode_action(action)
         self.uids.append(uid)
         self.gradients.append(encoded_action-action_prob)
         self.rewards.append(reward)
         self.probs.append(action_prob)
+        self.actions.append(action)
 
     def compute_action(self, uid):
         # COMPUTE THE ACTION FROM THE SOFTMAX PROBABILITIES
@@ -142,14 +186,17 @@ class REINFORCE:
         return action, action_probability_distribution
 
     def get_discounted_rewards(self, rewards):
-
         discounted_rewards = []
         cumulative_total_return = 0
+
+        negative_discount_reward_index = []
         # iterate the rewards backwards and and calc the total return
-        for reward in rewards[::-1]:
+        for i, reward in enumerate(rewards[::-1]):
             cumulative_total_return = (
                 cumulative_total_return*self.gamma)+reward
             discounted_rewards.insert(0, cumulative_total_return)
+            if reward<=0:
+                negative_discount_reward_index.append(i)
 
         # normalize discounted rewards
         mean_rewards = np.mean(discounted_rewards)
@@ -157,6 +204,9 @@ class REINFORCE:
         norm_discounted_rewards = (discounted_rewards -
                                    mean_rewards)/(std_rewards+1e-7)  # avoiding zero div
 
+        for i in negative_discount_reward_index:
+            norm_discounted_rewards[i][0] = 0            
+            self.probs[i][self.actions[i]] = 0
         return norm_discounted_rewards
 
     def train_policy_network(self):
@@ -203,7 +253,8 @@ class REINFORCE:
         return history
 
     def train(self, episodes):
-        self.total_rewards: list = []
+        self.stats: dict = {"total_rewards" : [], "chosen_action": [], "nr_full_lines" : [], "nr_actions_true": [], "nr_actions_false": []}
+        n_n = 100
         for episode in range(episodes):
             start_time = time.time()
             uid: str = self.env.reset()
@@ -211,6 +262,10 @@ class REINFORCE:
             done: bool = False
             total_reward_episode: float = 0
             negative_rewards: int = 0
+            total_actions = []
+            nr_full_lines = 0
+            nr_actions_true: int = 0
+            nr_actions_false: int = 0
             while not done:
                 start_time_1 = time.time()
                 action, prob = self.compute_action(uid)
@@ -224,16 +279,33 @@ class REINFORCE:
                 # Stop the episode if the agent makes 10 mistakes
                 if reward < 0:
                     negative_rewards += 1
-                    if negative_rewards >= 10 :
+                    reward = 0
+                    nr_actions_false += 1
+                    if negative_rewards >= 100:
                         done = True
                 elif reward > 0 and negative_rewards>0:
                     negative_rewards = 0
-                stop_time_1 = time.time() - start_time_1
-                print(f"Total time: {stop_time_1}")
+                    reward = 2
+                    nr_actions_true += 1
+                else:
+                    reward = 2
+                    nr_actions_true += 1
+                reward += full_lines * 10
+                nr_full_lines += full_lines
+                self.remember(state, shapes_queue, uid, action, prob, reward, action_shape)
+                state = state_new
 
             history = self.train_policy_network()
-            self.total_rewards.append(total_reward_episode)
-            if episode % 25 == 0:
+            self.stats["total_rewards"].append(total_reward_episode)
+            self.stats["chosen_action"].append(total_actions)
+            self.stats["nr_full_lines"].append(nr_full_lines)
+            self.stats["nr_actions_true"].append(nr_actions_true)
+            self.stats["nr_actions_false"].append(nr_actions_false)
+            if episode % 10000 == 0:
+                #n_n = 0 if n_n <= 0 else n_n-1
+                self.save_model()
+                with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
+                    pickle.dump(self.stats, f)
                 print(f"Episode: {episode} - total reward: {total_reward_episode} | Duration: {time.time()-start_time}")
             with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
                 pickle.dump(self.total_rewards, f)
