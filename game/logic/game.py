@@ -12,16 +12,17 @@ sys.path.insert(0, BASE_DIR)
 from models.shape import Shape
 from logic.game_view import GameView
 class Game:
-    def __init__(self):
+    def __init__(self, shape_queue_max: int = 3, create_screenshot_check: bool = True, port: int = 80):
         # 10x10
         self.shapes: List[Shape] = []
 
         self.make_shapes()
 
-        self.reward_score: dict = {"no": -10, "yes": 10, "line": 20}
+        self.reward_score: dict = {"no": -1, "yes": 1, "line": 3}
 
-        self.shapes_queue_max: int = 3
-        self.game_view = GameView()
+        self.shapes_queue_max: int = shape_queue_max
+        self.create_screenshot_check = create_screenshot_check
+        self.game_view = GameView(self.create_screenshot_check, port)
         self.reset()
     
     def reset(self):
@@ -29,9 +30,11 @@ class Game:
         self.game_env = np.zeros((10,10))
         self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
         self.shapes_queue: List[Shape] = []
-        self.get_random_shapes(3)
+        self.get_random_shapes(self.shapes_queue_max)
         self.game_view.reset()
-        uid: str = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        uid: str = ""
+        if self.create_screenshot_check:
+            uid = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
         return uid
     
     def make_shapes(self):
@@ -149,7 +152,7 @@ class Game:
             self.game_env = game_env
             reward *= self.reward_score["yes"]
         else:
-            reward = -10
+            reward = self.reward_score["no"]
         if change_game_grid:
             self.total_reward += reward
         return reward
@@ -172,10 +175,13 @@ class Game:
             self.get_random_shapes()
 
         # TODO: Check function that checks if there is enough space for the shapes
-        reward += self.check_on_full_lines()
+        full_lines: int = self.check_on_full_lines()
+        reward += full_lines
         done = self.check_if_user_can_place_the_shapes()
-        uid:str = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
-        return reward, self.game_env, done, self.shapes_queue, uid
+        uid: str = ""
+        if self.create_screenshot_check:
+            uid = self.game_view.create_screenshot(self.game_env, self.shapes_queue)
+        return reward, full_lines, self.game_env, done, self.shapes_queue, uid
         
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())

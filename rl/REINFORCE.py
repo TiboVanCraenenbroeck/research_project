@@ -1,16 +1,19 @@
+import tensorflow as tf
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 import os
 import sys
 import numpy as np
 import cv2
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Input, concatenate
+from tensorflow import keras
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Input, concatenate, add
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import Adam
-from tensorflow import keras
+from tensorflow.keras.layers import LeakyReLU
+from tensorflow.keras import initializers
 from tensorflow.python.framework.ops import disable_eager_execution
 import time
-import tensorflow as tf
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
 disable_eager_execution()
 
 import eel
@@ -26,23 +29,30 @@ from game.logic.game import Game
 
 class REINFORCE:
     def __init__(self, path=None):
-        self.env = Game()
+        self.env = Game(3, False, 8087)
         eel.sleep(1)
         self.state_shape = (100)  # the state space
         self.action_shape = 300  # the action space
-        self.gamma = 0.3  # decay rate of past observations
-        self.alpha = 1e-4  # learning rate of gradient
-        self.learning_rate = 0.0001  # learning of deep learning model
+        self.gamma = 0.9  # decay rate of past observations
+        self.alpha = 1e-3  # learning rate of gradient
+        self.learning_rate = 0.01  # learning of deep learning model
         
         self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
         self.model_name = f"model_{self.agent_name}.h5"
+        Path(f"{BASE_DIR}/start_models/REINFORCE").mkdir(parents=True, exist_ok=True)
+        Path(f"{BASE_DIR}/history_data/REINFORCE").mkdir(parents=True, exist_ok=True)
         if not path:
             self.model = self.build_policy_network()  # build model
             self.save_model()
         else:
-            self.model = self.load_model(path)  # import model
+            self.model = self.build_policy_network()  # import model
+            self.model = keras.models.load_model(path)
 
         # record observations
+        self.states = []
+        self.shapes_queues_0 = []
+        self.shapes_queues_1 = []
+        self.shapes_queues_2 = []
         self.uids = []
         self.gradients = []
         self.rewards = []
@@ -52,47 +62,37 @@ class REINFORCE:
         self.stats: dict = {"total_rewards" : [], "chosen_action": []}
     
     def save_model(self):
-        Path(f"{BASE_DIR}/start_models/REINFORCE").mkdir(parents=True, exist_ok=True)
         self.model.save(f"{BASE_DIR}/start_models/REINFORCE/{self.model_name}")
+    
+    def create_standard_shape(self, shape):
+        standard_shape = np.zeros((10, 10))
+        for index_row, row in enumerate(shape.shape):
+                for index_col, col in enumerate(row):
+                    standard_shape[index_row, index_col] = 1 if col>0 else 0
+        return standard_shape
 
     def build_policy_network(self):
         # BUILD MODEL ####################################################################
-        input_game_grid = Input(shape=(78, 78, 3))
-        input_shape_queue_0 = Input(shape=(48, 48, 3))
-        input_shape_queue_1 = Input(shape=(48, 48, 3))
-        input_shape_queue_2 = Input(shape=(48, 48, 3))
+        input_game_grid = Input(shape=(10, 10, 1))
+        input_shape_queue_0 = Input(shape=(10, 10, 1))
+        input_shape_queue_1 = Input(shape=(10, 10, 1))
+        input_shape_queue_2 = Input(shape=(10, 10, 1))
 
-        model_game_grid = Conv2D(3, (3, 3))(input_game_grid)
-        model_game_grid = Conv2D(3, (3, 3))(model_game_grid)
-        model_game_grid = Flatten()(model_game_grid)
-        model_game_grid = Model(inputs=input_game_grid,outputs=model_game_grid, name="Model_GameGrid")
+        representations_conv: int = 8
 
-        model_shape_queue_0 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_0)
-        model_shape_queue_0 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_0)
-        model_shape_queue_0 = Flatten()(model_shape_queue_0)
-        model_shape_queue_0 = Model(inputs=input_shape_queue_0, outputs=model_shape_queue_0, name="Model_ShapeQueue_0")
+        """ model_game_grid = Conv2D(representations_conv, (1, 1), kernel_initializer=initializers.he_normal())(input_game_grid)
+        model_game_grid = LeakyReLU()(model_game_grid) """
 
-        model_shape_queue_1 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_1)
-        model_shape_queue_1 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_1)
-        model_shape_queue_1 = Flatten()(model_shape_queue_1)
-        model_shape_queue_1 = Model(inputs=input_shape_queue_1, outputs=model_shape_queue_1, name="Model_ShapeQueue_1")
+        """ model_game_grid = Flatten()(input_game_grid)
 
-        model_shape_queue_2 = Conv2D(3, (3, 3), activation="relu")(input_shape_queue_2)
-        model_shape_queue_2 = Conv2D(3, (3, 3), activation="relu")(model_shape_queue_2)
-        model_shape_queue_2 = Flatten()(model_shape_queue_2)
-        model_shape_queue_2 = Model(inputs=input_shape_queue_2, outputs=model_shape_queue_2, name="Model_ShapeQueue_2")
+        model_game_grid = Dense(100,kernel_initializer=initializers.he_normal())(model_game_grid)
+        model_game_grid = LeakyReLU()(model_game_grid) """
 
-        combined = concatenate([model_game_grid.output, model_shape_queue_0.output,model_shape_queue_1.output, model_shape_queue_2.output])
+        #model_game_grid = Model(inputs=input_game_grid,outputs=model_game_grid, name="Model_GameGrid")
 
-        model_output = Dense(1024, activation="relu")(combined)
-        model_output = Dense(1024, activation="relu")(model_output)
-        model_output = Dense(512, activation="relu")(model_output)
-        model_output = Dense(512, activation="relu")(model_output)
-        model_output = Dense(self.action_shape, activation="softmax")(model_output)
-        model_output = Model(inputs=[model_game_grid.input, model_shape_queue_0.input, model_shape_queue_1.input, model_shape_queue_2.input], outputs=model_output, name="Model_Output")
 
-        model_output.compile(loss="categorical_crossentropy",
-                             optimizer=Adam(lr=self.learning_rate))
+        """ model_shape_queue_0 = Conv2D(representations_conv, (1, 1), kernel_initializer=initializers.he_normal())(input_shape_queue_0)
+        model_shape_queue_0 = LeakyReLU()(model_shape_queue_0) """
 
         """ model_shape_queue_0 = Flatten()(input_shape_queue_0)
 
@@ -120,13 +120,11 @@ class REINFORCE:
 
 
         model_output = concatenate([input_game_grid, input_shape_queue_0, input_shape_queue_1, input_shape_queue_2])
-        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = Conv2D(5, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
         model_output = LeakyReLU()(model_output)
-        
-        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = Conv2D(5, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
         model_output = LeakyReLU()(model_output)
-        
-        model_output = Conv2D(4, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
+        model_output = Conv2D(8, (2, 2), kernel_initializer=initializers.he_normal())(model_output)
         model_output = LeakyReLU()(model_output)
         
         model_output = Flatten()(model_output)
@@ -147,33 +145,25 @@ class REINFORCE:
     def remember(self,state, shapes_queue,uid, action, action_prob, reward, action_shape):
         # STORE EACH STATE, ACTION AND REWARD into the episodic memory #############################
         encoded_action = self.hot_encode_action(action)
+        self.states.append(state)
+        self.shapes_queues_0.append(shapes_queue[0])
+        self.shapes_queues_1.append(shapes_queue[1])
+        self.shapes_queues_2.append(shapes_queue[2])
         self.uids.append(uid)
         self.gradients.append(encoded_action-action_prob)
         self.rewards.append(reward)
         self.probs.append(action_prob)
         self.actions.append(action)
 
-    def compute_action(self, uid):
+    def compute_action(self, state, shape_queue_0, shape_queue_1, shape_queue_2):
         # COMPUTE THE ACTION FROM THE SOFTMAX PROBABILITIES
-        # Get the images from the iteration
-        img_game_grid = cv2.imread(f"{self.env.game_view.base_dictionary}/game_gird/game_gird_{uid}.jpg")
-        img_shape_queue_0 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{uid}0.jpg")
-        img_shape_queue_1 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{uid}1.jpg")
-        img_shape_queue_2 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{uid}2.jpg")
+        shape_queue_0 = np.array([shape_queue_0], dtype=np.float)
+        shape_queue_1 = np.array([shape_queue_1], dtype=np.float)
+        shape_queue_2 = np.array([shape_queue_2], dtype=np.float)
+        state = np.array([state], dtype=np.float)
 
-        # Add the imgs to a list + create a numpy array + concatenate it together
-        imgs_game_grid = np.array([img_game_grid], dtype=np.float)
-        imgs_shape_queue_0 = np.array([img_shape_queue_0], dtype=np.float)
-        imgs_shape_queue_1 = np.array([img_shape_queue_1], dtype=np.float)
-        imgs_shape_queue_2 = np.array([img_shape_queue_2], dtype=np.float)
-
-        # Scale it (0, 1)
-        imgs_game_grid /=255
-        imgs_shape_queue_0 /=255
-        imgs_shape_queue_1 /=255
-        imgs_shape_queue_2 /=255
         # Concatenate the lists
-        input: list = [imgs_game_grid, imgs_shape_queue_0, imgs_shape_queue_1, imgs_shape_queue_2]
+        input: list = [state, shape_queue_0, shape_queue_1, shape_queue_2]
         # Get action probability
         action_probability_distribution = self.model.predict(input).flatten()
         # Norm action probability distribution
@@ -213,30 +203,12 @@ class REINFORCE:
         # Get the imgs of the episode
         imgs_game_grid: list = []
         imgs_shape_queue0: list = []
-        imgs_shape_queue1: list = []
-        imgs_shape_queue2: list = []
+      
+        states = np.array(self.states, dtype=np.float)
+        shape_queues_0 = np.array(self.shapes_queues_0, dtype=np.float)
+        shape_queues_1 = np.array(self.shapes_queues_1, dtype=np.float)
+        shape_queues_2 = np.array(self.shapes_queues_2, dtype=np.float)
 
-        for iteration in self.uids:
-            # Get the img
-            img_game_grid = cv2.imread(f"{self.env.game_view.base_dictionary}/game_gird/game_gird_{iteration}.jpg")
-            img_shape_queue_0 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{iteration}0.jpg")
-            img_shape_queue_1 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{iteration}1.jpg")
-            img_shape_queue_2 = cv2.imread(f"{self.env.game_view.base_dictionary}/queue_shapes/queue_shapes_{iteration}2.jpg")
-            # Add the img to the list
-            imgs_game_grid.append(img_game_grid)
-            imgs_shape_queue0.append(img_shape_queue_0)
-            imgs_shape_queue1.append(img_shape_queue_1)
-            imgs_shape_queue2.append(img_shape_queue_2)
-        # Change it to a numpy array
-        imgs_game_grid = np.array(imgs_game_grid, dtype=np.float)
-        imgs_shape_queue0 = np.array(imgs_shape_queue0, dtype=np.float)
-        imgs_shape_queue1 = np.array(imgs_shape_queue1, dtype=np.float)
-        imgs_shape_queue2 = np.array(imgs_shape_queue2, dtype=np.float)
-        # Scale it (0, 1)
-        imgs_game_grid /=255
-        imgs_shape_queue0 /=255
-        imgs_shape_queue1 /=255
-        imgs_shape_queue2 /=255
         # get y_train
         # Met hoeveel de probabiliteit zou moeten veranderen
         gradients = np.vstack(self.gradients)
@@ -246,11 +218,28 @@ class REINFORCE:
         gradients *= discounted_rewards
         gradients = self.alpha*np.vstack([gradients])+self.probs
         y_train = gradients
-        history = self.model.train_on_batch([imgs_game_grid, imgs_shape_queue0, imgs_shape_queue1, imgs_shape_queue2], y_train)
+        history = self.model.train_on_batch([states, shape_queues_0, shape_queues_1, shape_queues_2], y_train)
 
-        self.uids, self.probs, self.gradients, self.rewards = [], [], [], []
-        self.save_model()
+        self.states, self.shapes_queues_0, self.shapes_queues_1, self.shapes_queues_2, self.probs, self.gradients, self.rewards = [], [], [], [], [], [], []
         return history
+    
+    def change_state_shape_queue(self, state, shape_queue):
+        state = np.array(state, dtype=np.float)
+        state[state>0] = 1
+        shape_queue = [np.array(shape, dtype=np.float) for shape in shape_queue]
+        
+        shape_queue = [np.resize(shape,(10, 10, 1)) for shape in shape_queue]
+        state = np.resize(state,(10, 10, 1))
+
+        state /= 10
+        shape_queue_0 = shape_queue[0]
+        shape_queue_1 = shape_queue[1]
+        shape_queue_2 = shape_queue[2]
+
+        shape_queue_0 /= 10
+        shape_queue_1 /= 10
+        shape_queue_2 /= 10
+        return state, shape_queue_0, shape_queue_1, shape_queue_2
 
     def train(self, episodes):
         self.stats: dict = {"total_rewards" : [], "chosen_action": [], "nr_full_lines" : [], "nr_actions_true": [], "nr_actions_false": []}
@@ -258,6 +247,11 @@ class REINFORCE:
         for episode in range(episodes):
             start_time = time.time()
             uid: str = self.env.reset()
+            state = self.env.game_env
+            shapes_queue = self.env.shapes_queue
+            shapes_queue = [self.create_standard_shape(shape) for shape in shapes_queue]
+            state, shapes_queue_0, shapes_queue_1, shapes_queue_2 = self.change_state_shape_queue(state, shapes_queue)
+            shapes_queue = [shapes_queue_0, shapes_queue_1, shapes_queue_2]
             self.env.render()
             done: bool = False
             total_reward_episode: float = 0
@@ -267,17 +261,15 @@ class REINFORCE:
             nr_actions_true: int = 0
             nr_actions_false: int = 0
             while not done:
-                start_time_1 = time.time()
-                action, prob = self.compute_action(uid)
-                action_shape, action_row, action_col = self.number_to_arc(
-                    action)
-                reward, game_env, done, shapes_queue, uid = self.env.step(
-                    self.env.shapes_queue[action_shape], action_row, action_col)
-                self.remember(uid, action, prob, reward)
-                total_reward_episode += reward
-                self.env.render()
+                action, prob = self.compute_action(state, shapes_queue_0, shapes_queue_1, shapes_queue_2)
+                #action = np.random.randint(0,300)
+                action_shape, action_row, action_col = self.number_to_arc(action)
+                reward, full_lines, state_new, done, shapes_queue_new, uid = self.env.step(self.env.shapes_queue[action_shape], action_row, action_col)
+                shapes_queue_new = [self.create_standard_shape(shape) for shape in shapes_queue_new]
+
+                state_new, shapes_queue_0_new, shapes_queue_1_new, shapes_queue_2_new = self.change_state_shape_queue(state_new, shapes_queue_new)
                 # Stop the episode if the agent makes 10 mistakes
-                if reward < 0:
+                if reward <= 0:
                     negative_rewards += 1
                     reward = 0
                     nr_actions_false += 1
@@ -295,6 +287,12 @@ class REINFORCE:
                 self.remember(state, shapes_queue, uid, action, prob, reward, action_shape)
                 state = state_new
 
+                shapes_queue_0, shapes_queue_1, shapes_queue_2 = shapes_queue_0_new, shapes_queue_1_new, shapes_queue_2_new
+                shapes_queue = [shapes_queue_0, shapes_queue_1, shapes_queue_2]
+                total_reward_episode += reward
+                total_actions.append(action)
+                self.env.render()
+
             history = self.train_policy_network()
             self.stats["total_rewards"].append(total_reward_episode)
             self.stats["chosen_action"].append(total_actions)
@@ -307,8 +305,6 @@ class REINFORCE:
                 with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
                     pickle.dump(self.stats, f)
                 print(f"Episode: {episode} - total reward: {total_reward_episode} | Duration: {time.time()-start_time}")
-            with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
-                pickle.dump(self.total_rewards, f)
 
     def hot_encode_action(self, action):
         action_encoded = np.zeros(self.action_shape)
@@ -323,7 +319,7 @@ class REINFORCE:
         return number_list[0], number_list[1], number_list[2]
 
 
-N_EPISODES = 1000
+N_EPISODES = 1000000
 
 agent = REINFORCE()
 

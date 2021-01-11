@@ -26,23 +26,25 @@ https://nitratine.net/blog/post/python-gui-using-chrome/
 
 class GameView:
     render: bool = True
-    def __init__(self):
+    def __init__(self, create_screenshot_check: bool = True, port: int = 80):
+        self.create_screenshot_check = create_screenshot_check
         self.reset()
         eel.init(f"{BASE_DIR}/game/web")
-        self.start()
+        self.start(port)
     
     def reset(self):
-        self.base_dictionary: str = f"{BASE_DIR}/game_history/{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
         self.iteration: int = 0
-        Path(self.base_dictionary).mkdir(parents=True, exist_ok=True)
-        Path(f"{self.base_dictionary}/game_gird").mkdir(parents=True, exist_ok=True)
-        Path(f"{self.base_dictionary}/queue_shapes").mkdir(parents=True, exist_ok=True)
+        if self.create_screenshot_check:
+            self.base_dictionary: str = f"{BASE_DIR}/game_history/{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
+            Path(self.base_dictionary).mkdir(parents=True, exist_ok=True)
+            Path(f"{self.base_dictionary}/game_gird").mkdir(parents=True, exist_ok=True)
+            Path(f"{self.base_dictionary}/queue_shapes").mkdir(parents=True, exist_ok=True)
 
 
-    def start(self):
+    def start(self, port):
         hostname = socket.gethostname()
         ip = socket.gethostbyname(hostname)
-        eel.start("index.html", port=80, host=ip, block=False)
+        eel.start("index.html", port=port, host=ip, block=False)
         eel.sleep(1)
 
 
@@ -52,7 +54,6 @@ class GameView:
     
     def change_game_view(self, grid, score, shape_queue):
         eel.changeGameGrid(grid, score, shape_queue)
-        print("send!")
     
     @eel.expose
     def change_render_state():
@@ -129,8 +130,6 @@ class GameView:
             t_create_img_shape_queue.join()
         except:
             pass
-        """ self.create_img_game_grid(game_grid, style, uid)
-        self.create_img_shape_queue(game_queue, uid) """
         self.iteration += 1
         return uid
 
