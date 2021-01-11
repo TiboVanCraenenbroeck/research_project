@@ -12,7 +12,8 @@ sys.path.insert(0, BASE_DIR)
 from models.shape import Shape
 from logic.game_view import GameView
 class Game:
-    def __init__(self, shape_queue_max: int = 3, create_screenshot_check: bool = True, port: int = 80):
+    def __init__(self, shape_queue_max: int = 3, create_screenshot_check: bool = True, port: int = 80, env_size: int = 10):
+        self.env_size = env_size
         # 10x10
         self.shapes: List[Shape] = []
 
@@ -22,12 +23,12 @@ class Game:
 
         self.shapes_queue_max: int = shape_queue_max
         self.create_screenshot_check = create_screenshot_check
-        self.game_view = GameView(self.create_screenshot_check, port)
+        self.game_view = GameView(self.create_screenshot_check, port, self.env_size)
         self.reset()
     
     def reset(self):
         self.game_play = True
-        self.game_env = np.zeros((10,10))
+        self.game_env = np.zeros((self.env_size,self.env_size))
         self.total_reward: int = 0 # 3 = 600 | 2 = 300 | 1 = 100
         self.shapes_queue: List[Shape] = []
         self.get_random_shapes(self.shapes_queue_max)
@@ -135,7 +136,7 @@ class Game:
             # Check cols
             for c in range(shape.nr_cols):
                 # Check if the cell is not out of the grid
-                if r + row >= 10 or c + col >= 10:
+                if r + row >= self.env_size or c + col >= self.env_size:
                     space_available = False
                     break
                 nr_cols_available = self.game_env[r+row, c+col]

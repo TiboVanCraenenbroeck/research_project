@@ -26,7 +26,8 @@ https://nitratine.net/blog/post/python-gui-using-chrome/
 
 class GameView:
     render: bool = True
-    def __init__(self, create_screenshot_check: bool = True, port: int = 80):
+    def __init__(self, create_screenshot_check: bool = True, port: int = 80, env_size: int = 10):
+        self.env_size = env_size
         self.create_screenshot_check = create_screenshot_check
         self.reset()
         eel.init(f"{BASE_DIR}/game/web")
@@ -44,7 +45,8 @@ class GameView:
     def start(self, port):
         hostname = socket.gethostname()
         ip = socket.gethostbyname(hostname)
-        eel.start("index.html", port=port, host=ip, block=False)
+        html_file: str = "index.html" if self.env_size == 10 else "index_6.html"
+        eel.start(html_file, port=port, host=ip, block=False)
         eel.sleep(1)
 
 
