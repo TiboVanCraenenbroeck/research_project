@@ -117,14 +117,17 @@ class Game:
             if min > 0: del_rows.append(index_row)
         return del_rows
     
-    def check_if_user_can_place_the_shapes(self):
-        can_set_shapes: int = False
+    def check_if_user_can_place_the_shapes(self, return_position=False):
+        can_set_shapes: bool = False
         for index_row, row in enumerate(self.game_env):
             for index_col, col in enumerate(row):
-                for shape in self.shapes_queue:
+                for i, shape in enumerate(self.shapes_queue):
                     can_set_shapes = self.check_space_available(shape, index_row, index_col, False)
                     if can_set_shapes>0:
-                        return False
+                        if return_position:
+                            return False, i, index_row, index_col
+                        else:
+                            return False
         return True
 
     def check_space_available(self, shape: Shape, row: int, col: int, change_game_grid: bool = True) -> int:
