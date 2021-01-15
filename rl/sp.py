@@ -34,7 +34,7 @@ def change_state_shape_queue(state, shape_queue):
     shape_queue_2 /= 10
     return state, shape_queue_0, shape_queue_1, shape_queue_2
 
-env = Game(3, False, 8081, 6)
+env = Game(3, False, 8087, 4)
 
 stats = []
 

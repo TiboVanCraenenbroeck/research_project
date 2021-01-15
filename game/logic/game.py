@@ -40,22 +40,41 @@ class Game:
     
     def make_shapes(self):
         # x x x x x
-        self.shapes.append(Shape(1, 5, [[1, 1, 1, 1, 1]]))
-        self.shapes.append(Shape(5, 1, [[1], [1], [1], [1], [1]]))
-        # x x x x
-        self.shapes.append(Shape(1, 4, [[2, 2, 2, 2]]))
-        self.shapes.append(Shape(4, 1, [[2], [2], [2], [2]]))
-        # x x x
-        self.shapes.append(Shape(1, 3, [[3, 3, 3]]))
-        self.shapes.append(Shape(3, 1, [[3], [3], [3]]))
-        """ 
-        x   | xx |  xx |   x
-        xx  | x  |   x |  xx
-         """
-        self.shapes.append(Shape(2, 2, [[4, -1], [4, 4]]))
-        self.shapes.append(Shape(2, 2, [[4, 4], [4, -1]]))
-        self.shapes.append(Shape(2, 2, [[4, 4], [-1, 4]]))
-        self.shapes.append(Shape(2, 2, [[-1, 4], [4, 4]]))
+        if self.env_size >4:
+            self.shapes.append(Shape(1, 5, [[1, 1, 1, 1, 1]]))
+            self.shapes.append(Shape(5, 1, [[1], [1], [1], [1], [1]]))
+            # x x x x
+            self.shapes.append(Shape(1, 4, [[2, 2, 2, 2]]))
+            self.shapes.append(Shape(4, 1, [[2], [2], [2], [2]]))
+        
+            """ 
+            xxx
+            xxx
+            xxx
+            """
+            self.shapes.append(Shape(3, 3, [[7, 7, 7], [7, 7, 7], [7, 7, 7]]))
+
+            """ 
+            x         |    x x x     |    x x x    |        x
+            x         |        x     |    x        |        x
+            x x x     |        x     |    x        |    x x x
+            """
+            self.shapes.append(Shape(3, 3, [[9, -1, -1], [9, -1, -1], [9, 9, 9]]))
+            self.shapes.append(Shape(3, 3, [[9, 9, 9], [-1, -1, 9], [-1, -1, 9]]))
+            self.shapes.append(Shape(3, 3, [[9, 9, 9], [9, -1, -1], [9, -1, -1]]))
+            self.shapes.append(Shape(3, 3, [[-1, -1, 9], [-1, -1, 9], [9, 9, 9]]))
+
+            # x x x
+            self.shapes.append(Shape(1, 3, [[3, 3, 3]]))
+            self.shapes.append(Shape(3, 1, [[3], [3], [3]]))
+            """ 
+            x   | xx |  xx |   x
+            xx  | x  |   x |  xx
+            """
+            self.shapes.append(Shape(2, 2, [[4, -1], [4, 4]]))
+            self.shapes.append(Shape(2, 2, [[4, 4], [4, -1]]))
+            self.shapes.append(Shape(2, 2, [[4, 4], [-1, 4]]))
+            self.shapes.append(Shape(2, 2, [[-1, 4], [4, 4]]))
 
 
         """ 
@@ -67,26 +86,11 @@ class Game:
         """ x """
         self.shapes.append(Shape(1, 1, [[6]]))
 
-        """ 
-        xxx
-        xxx
-        xxx
-         """
-        self.shapes.append(Shape(3, 3, [[7, 7, 7], [7, 7, 7], [7, 7, 7]]))
 
         """ xx """
         self.shapes.append(Shape(1, 2, [[8, 8]]))
         self.shapes.append(Shape(2, 1, [[8], [8]]))
 
-        """ 
-        x         |    x x x     |    x x x    |        x
-        x         |        x     |    x        |        x
-        x x x     |        x     |    x        |    x x x
-         """
-        self.shapes.append(Shape(3, 3, [[9, -1, -1], [9, -1, -1], [9, 9, 9]]))
-        self.shapes.append(Shape(3, 3, [[9, 9, 9], [-1, -1, 9], [-1, -1, 9]]))
-        self.shapes.append(Shape(3, 3, [[9, 9, 9], [9, -1, -1], [9, -1, -1]]))
-        self.shapes.append(Shape(3, 3, [[-1, -1, 9], [-1, -1, 9], [9, 9, 9]]))
     
     def check_on_full_lines(self):
         # Check the rows and columns

@@ -31,22 +31,32 @@ sys.path.insert(0, BASE_DIR)
 from game.logic.game import Game
 
 class A2C:
-    def __init__(self, number_actions: int, learning_rate_actor:int, learning_rate_critic:int, gamma, port):
+    def __init__(self, number_actions: int, learning_rate_actor:int, learning_rate_critic:int, gamma, port, path:str = None):
         self.number_actions = number_actions
         self.action_space = [i for i in range(self.number_actions)]
         self.learning_rate_actor = learning_rate_actor
         self.learning_rate_critic = learning_rate_critic
         self.gamma = gamma
 
-        self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
-        self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"     
-        Path(self.base_path).mkdir(parents=True, exist_ok=True)
-
         self.actor_nn, self.actor_learn_nn, self.critic_nn = self.build_nn()
+        self.stats: dict = {"total_rewards" : [], "chosen_action": [], "nr_full_lines" : [], "nr_actions_true": [], "nr_actions_false": []}
+        if not path:
+            self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
+            self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"     
+            Path(self.base_path).mkdir(parents=True, exist_ok=True)
+        else:
+            self.agent_name = path
+            self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"
+
+            self.actor_nn = keras.models.load_model(f"{self.base_path}/actor_nn.h5")
+            self.actor_learn_nn = keras.models.load_model(f"{self.base_path}/actor_learn_nn.h5")
+            self.critic_nn = keras.models.load_model(f"{self.base_path}/critic_nn.h5")
+            with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'rb') as f:
+                self.stats = pickle.load(f)
+
         self.reset_memory()
 
         self.env = Game(1, False, port, 6)
-        self.stats: dict = {"total_rewards" : [], "chosen_action": [], "nr_full_lines" : [], "nr_actions_true": [], "nr_actions_false": []}
     
     def save_model(self):
         self.actor_nn.save(f"{self.base_path}/actor_nn.h5")
@@ -83,23 +93,23 @@ class A2C:
 
         model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
         model_game_grid = Flatten()(model_game_grid)
-        model_game_grid = Dense(512, activation="relu")(model_game_grid)
-        model_game_grid = Dense(512, activation="relu")(model_game_grid)
-        model_game_grid = Dense(512, activation="relu")(model_game_grid)
+        model_game_grid = Dense(128, activation="relu")(model_game_grid)
+        """ model_game_grid = Dense(128, activation="relu")(model_game_grid)
+        model_game_grid = Dense(128, activation="relu")(model_game_grid) """
         model_game_grid = Model(inputs=[input_game_grid], outputs=[model_game_grid])
         
         model_shape = Conv2D(8, (3, 3), activation="relu")(input_shape)
         model_shape = Flatten()(model_shape)
         model_shape = Dense(72, activation="relu")(model_shape)
-        model_shape = Dense(72, activation="relu")(model_shape)
-        model_shape = Dense(72, activation="relu")(model_shape)
+        """ model_shape = Dense(72, activation="relu")(model_shape)
+        model_shape = Dense(72, activation="relu")(model_shape) """
         model_shape = Model(inputs=[input_shape], outputs=[model_shape])
 
         model = concatenate([model_game_grid.output, model_shape.output])
 
-        model = Dense(584, activation="relu")(model)
-        model = Dense(292, activation="relu")(model)
-        model = Dense(146, activation="relu")(model)
+        model = Dense(200, activation="relu")(model)
+        model = Dense(100, activation="relu")(model)
+        model = Dense(50, activation="relu")(model)
 
         actor = Dense(self.number_actions, activation="softmax")(model)
         critic = Dense(1, activation="linear")(model)
@@ -132,8 +142,8 @@ class A2C:
 
             actions = np.array(self.actions)
             
-            self.actor_learn_nn.fit([states, shapes, deltas], actions, epoches=1, verbose=0)
-            self.critic_nn.fit([states, shapes], targets, epoches=1, verbose=0)
+            self.actor_learn_nn.fit([states, shapes, deltas], actions, epochs=1, verbose=0)
+            self.critic_nn.fit([states, shapes], targets, epochs=1, verbose=0)
             self.reset_memory()     
 
 
@@ -169,14 +179,14 @@ class A2C:
         done: bool = False
         if reward <= 0:
             negative_rewards += 1
-            reward = 0
+            reward = -1
             if negative_rewards >= 3:
                 done = True
         elif reward > 0 and negative_rewards > 0:
             negative_rewards = 0
-            reward = 2
+            reward = 1
         else:
-            reward = 2
+            reward = 1
         reward += full_lines * 10
         done = done_old if done_old else done
         return reward, negative_rewards, done
@@ -223,6 +233,16 @@ class A2C:
                 state = state_new
                 shapes_queue = shapes_queue_new
                 self.env.render()
+
+                # Stats
+                total_reward_episode += reward
+                nr_full_lines += full_lines
+                total_actions.append(action)
+                if reward>0:
+                    nr_actions_true += 1
+                else:
+                    nr_actions_false += 1
+
             
             self.train_nn()
             self.stats["total_rewards"].append(total_reward_episode)
@@ -230,17 +250,21 @@ class A2C:
             self.stats["nr_full_lines"].append(nr_full_lines)
             self.stats["nr_actions_true"].append(nr_actions_true)
             self.stats["nr_actions_false"].append(nr_actions_false)
-            if episode % 200 == 0:
-                self.save_model()
-                with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
-                    pickle.dump(self.stats, f)
-                print(f"Episode: {episode} - total reward: {total_reward_episode} | Duration: {time.time()-start_time}")
+            if episode % 10000 == 0:
+                try:
+                    self.save_model()
+                    with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'wb') as f:
+                        pickle.dump(self.stats, f)
+                    print(f"Episode: {episode} - total reward: {total_reward_episode} | Duration: {time.time()-start_time}")
+                except:
+                    print("Saved failed!")
 
 
 
-
-lr_actor = 1e-3
-lr_critic = 1e-3
+lr_actor = 1e-2
+lr_critic = 1e-2
+""" lr_actor = 1e-3
+lr_critic = 1e-3 """
 gamma: float = 0.99
-agent = A2C(36, lr_actor, lr_critic, gamma, 8080)
+agent = A2C(36, lr_actor, lr_critic, gamma, 8084)
 agent.train(1000000)
