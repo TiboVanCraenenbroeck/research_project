@@ -99,6 +99,7 @@ class A2C:
         model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
         model_game_grid = Flatten()(model_game_grid)
         model_game_grid = Dense(32, activation="relu")(model_game_grid)
+        model_game_grid = Dense(32, activation="relu")(model_game_grid)
         """ model_game_grid = Dense(128, activation="relu")(model_game_grid)
         model_game_grid = Dense(128, activation="relu")(model_game_grid) """
         model_game_grid = Model(
@@ -107,15 +108,16 @@ class A2C:
         model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape)
         model_shape = Flatten()(model_shape)
         model_shape = Dense(8, activation="relu")(model_shape)
+        model_shape = Dense(8, activation="relu")(model_shape)
         """ model_shape = Dense(72, activation="relu")(model_shape)
         model_shape = Dense(72, activation="relu")(model_shape) """
         model_shape = Model(inputs=[input_shape], outputs=[model_shape])
 
         model = concatenate([model_game_grid.output, model_shape.output])
 
-        model = Dense(80, activation="relu")(model)
-        model = Dense(80, activation="relu")(model)
-        model = Dense(80, activation="relu")(model)
+        model = Dense(40, activation="relu")(model)
+        model = Dense(40, activation="relu")(model)
+        model = Dense(40, activation="relu")(model)
 
         actor = Dense(self.number_actions, activation="softmax")(model)
         critic = Dense(1, activation="linear")(model)
