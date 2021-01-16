@@ -14,7 +14,7 @@ from tensorflow.keras import initializers
 from tensorflow.keras.layers import LeakyReLU
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Input, concatenate, add
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Input, concatenate, add, BatchNormalization
 from tensorflow.keras import backend as K
 from tensorflow import keras
 import cv2
@@ -39,11 +39,12 @@ number_layers_dynamic_function: int = 4
 number_neurons_prediction_function: int = 16
 number_neurons_dynamic_function: int = 16
 
+def softmax_ce_logits(y_true, y_pred):
+    return tf.nn.softmax_cross_entropy_with_logits_v2(y_true, y_pred)
+
 # Input
 input_game_grid = Input(shape=(4, 4, 1))
 input_shape = Input(shape=(2, 2, 1))
-
-# Initiainference
 
 # Hidden state
 
@@ -72,12 +73,12 @@ model_prediction = input_s0
 
 for i in range(number_layers_prediction_function):
     model_prediction = Dense(number_neurons_prediction_function, activation="relu")(model_prediction)
-    model_prediction = batch_normalization()(model_prediction)
+    model_prediction = BatchNormalization()(model_prediction)
 
 model_prediction_policy = Dense(dim_prediction_function_policy, activation="softmax")(model_prediction)
 model_prediction_value = Dense(1, activation="linear")(model_prediction)
 
-model_prediction = Model(inputs=[input_s0], outputs=[model_prediction_policy, model_prediction_value])
+model_prediction = Model(inputs=[model_hidden_state], outputs=[model_prediction_policy, model_prediction_value])
 
 
 # Dynamic function
@@ -88,7 +89,9 @@ model_dynamic = concatenate([input_s0, input_current_action])
 
 for i in range(number_layers_dynamic_function):
     model_dynamic = Dense(number_neurons_dynamic_function, activation="relu")(model_dynamic)
-    model_dynamic = batch_normalization()(model_dynamic)
+    model_dynamic = BatchNormalization()(model_dynamic)
 
 model_dynamic_s1 = Dense(dim_hidden_state)(model_dynamic)
 model_dynamic_reward = Dense(1, activation="linear")(model_dynamic)
+
+model_dynamic = Model(inputs=[input_s0, input_current_action], outputs=[model_dynamic_s1, model_dynamic_reward])
