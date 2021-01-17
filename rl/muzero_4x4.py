@@ -8,7 +8,6 @@ import math
 import os
 import sys
 import numpy as np
-import cv2
 from tensorflow import keras
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Input, concatenate, add, BatchNormalization
@@ -36,6 +35,12 @@ class MuZero:
 
         self.nn_hidden_state, self.nn_prediction, self.nn_dynamic = self.build_nn()
         self.make_model()
+    
+    def save_model(self):
+        self.nn_hidden_state.save("h.h5")
+        self.nn_prediction.save("f.h5")
+        self.nn_dynamic.save("g.h5")
+        self.model.save("base_model.h5")
 
     def start(self):
         # Vars
@@ -106,27 +111,28 @@ class MuZero:
         outputs, loss = [], []
 
         def softmax_ce_logits(y_true, y_pred):
-            return tf.nn.softmax_cross_entropy_with_logits_v2(y_true, y_pred)
+            return tf.nn.softmax_cross_entropy_with_logits(y_true, y_pred)
 
-        input_state = Input(shape=(4, 4, 1))
+        input_game_grid = Input(shape=(4, 4, 1))
+        input_shape = Input(shape=(2, 2, 1))
         
-        model_hidden_state = self.nn_hidden_state(input_state)
+        model_hidden_state = self.nn_hidden_state([input_game_grid, input_shape])
 
         model_policy, model_value = self.nn_prediction([model_hidden_state])
-        outputs.append([model_policy, model_value])
-        loss.append(["mse", softmax_ce_logits])
+        outputs += [model_policy, model_value]
+        loss += ["mse", softmax_ce_logits]
 
-        input_current_action = Input(shape=(self.dim_dynamic_function_current_action, 1))
+        input_current_action = Input(shape=(self.dim_dynamic_function_current_action, 1), name="test")
         model_state_1, model_reward = self.nn_dynamic([model_hidden_state, input_current_action])
-        outputs.append([model_reward])
-        loss.append(["mse"])
+        outputs += [model_reward]
+        loss += ["mse"]
 
-        self.model = Model(inputs=input_state, outputs=outputs)
-        self.model.compile(loss, optimizer=Adam(self.learning_rate))
-
+        self.model = Model(inputs=[input_game_grid, input_shape, input_current_action], outputs=outputs)
+        self.model.compile(loss=loss, optimizer=Adam(self.learning_rate))
 
 
         
 
 
-
+learning_rate = 0.01
+test = MuZero(learning_rate)
