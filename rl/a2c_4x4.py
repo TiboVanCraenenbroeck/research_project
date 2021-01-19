@@ -233,8 +233,7 @@ class A2C:
                 action, prob = self.compute_action(state, shapes_queue)
                 action_shape, action_row, action_col = self.number_to_arc(
                     action)
-                reward, full_lines, state_new, done, shapes_queue_new, uid = self.env.step(
-                    self.env.shapes_queue[action_shape], action_row, action_col)
+                reward, full_lines, state_new, done, shapes_queue_new, uid = self.env.step(self.env.shapes_queue[action_shape], action_row, action_col)
                 shapes_queue_new = self.create_standard_shape(
                     shapes_queue_new[0])
                 state_new[state_new > 0] = 1
