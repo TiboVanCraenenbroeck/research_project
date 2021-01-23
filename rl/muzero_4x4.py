@@ -82,14 +82,18 @@ class ReplayBuffer:
 class GamePlay:
     def __init__(self, env: Game, discount=0.95):
         self.env = env
+        _ = env.reset()
         self.observations = []
         self.history = []
         self.rewards = []
         self.policies = []
+        self.actions_true = 0
+        self.actions_false = 0
         self.discount = discount
         self.done = False
-        self.observation = env.reset()
         self.total_reward = 0
+        self.negative_rewards = 0
+        self.full_lines = 0
         self.start()
     
     def start(self):
@@ -121,6 +125,23 @@ class GamePlay:
         r = math.floor(number/4)
         c = number if r == 0 else number - (4 * r)
         return a, r, c
+    
+    def reward_function(self, reward, full_lines, done):
+        done_old = done
+        done: bool = False
+        if reward <= 0:
+            self.negative_rewards += 1
+            reward = -1
+            if self.negative_rewards >= 3:
+                done = True
+        elif reward > 0 and self.negative_rewards > 0:
+            self.negative_rewards = 0
+            reward = 3
+        else:
+            reward = 3
+        reward += full_lines * 2
+        done = done_old if done_old else done
+        return reward, done
 
     def apply(self, a_1, p=None):
         self.observations.append(np.copy(self.observation))
@@ -133,12 +154,16 @@ class GamePlay:
 
         observation = [state_new, shapes_queue_new]
         self.observation = observation
-        #self.observation, r_1, done, _ = self.env.step(a_1)
-
+        r_1, done = self.reward_function(r_1, full_lines, done)
         self.history.append(a_1)
         self.rewards.append(r_1)
         self.total_reward += r_1
         self.policies.append(p)
+        self.full_lines += 1
+        if self.negative_rewards==0:
+            self.actions_true += 1
+        else:
+            self.actions_false += 1
 
         self.done = done
 
@@ -272,7 +297,7 @@ class MCTS:
 class MuZero:
     def __init__(self, learning_rate: float, replay_memory_size: int, batch_size:int, K: int, port: int = 8080):
         self.learning_rate = learning_rate
-        self.a_dim = 16 # TODO --> Dim invullen
+        self.a_dim = 16
         self.with_policy = True
 
         self.start(replay_memory_size, batch_size, K)
@@ -288,20 +313,24 @@ class MuZero:
         self.nn_dynamic.save(f"{self.base_path}/g.h5")
         self.model.save(f"{self.base_path}/base_model.h5")
 
+        history = {"tot_reward": self.tot_reward, "game_history": self.game_history, "len_actions_taken": self.len_actions_taken, "actions_true": self.actions_true, "actions_false": self.actions_false, "full_lines": self.full_lines}
+        with open(f'{self.base_path}/game_history.pkl', 'wb') as f:
+            pickle.dump(history, f)
+
     def start(self, replay_memory_size, batch_size, K):
         self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
-        self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"
+        self.base_path = f"{BASE_DIR}/start_models/muzero/{self.agent_name}"
         Path(self.base_path).mkdir(parents=True, exist_ok=True)
         # Vars
-        self.dim_hidden_state = 16
+        self.dim_hidden_state = 20
         self.dim_prediction_function_policy: int = 16
         self.dim_dynamic_function_current_action: int = 16
 
-        self.number_layers_prediction_function: int = 4
-        self.number_layers_dynamic_function: int = 4
+        self.number_layers_prediction_function: int = 3
+        self.number_layers_dynamic_function: int = 3
 
-        self.number_neurons_prediction_function: int = 16
-        self.number_neurons_dynamic_function: int = 16
+        self.number_neurons_prediction_function: int = 40
+        self.number_neurons_dynamic_function: int = 72
 
         self.batch_size = batch_size
 
@@ -316,16 +345,16 @@ class MuZero:
         input_shape = Input(shape=(2, 2, 1))
 
         # Hidden state
-        model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
-        model_game_grid = Flatten()(model_game_grid)
-        model_game_grid = Dense(32, activation="relu")(model_game_grid)
-        model_game_grid = Dense(32, activation="relu")(model_game_grid)
+        #model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
+        model_game_grid = Flatten()(input_game_grid)
+        """ model_game_grid = Dense(32, activation="relu")(model_game_grid)
+        model_game_grid = Dense(32, activation="relu")(model_game_grid) """
         model_game_grid = Model(inputs=[input_game_grid], outputs=[model_game_grid])
 
-        model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape)
-        model_shape = Flatten()(model_shape)
-        model_shape = Dense(8, activation="relu")(model_shape)
-        model_shape = Dense(8, activation="relu")(model_shape)
+        #model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape)
+        model_shape = Flatten()(input_shape)
+        """ model_shape = Dense(8, activation="relu")(model_shape)
+        model_shape = Dense(8, activation="relu")(model_shape) """
         model_shape = Model(inputs=[input_shape], outputs=[model_shape])
 
         model_hidden_state = concatenate([model_game_grid.output, model_shape.output])
@@ -340,8 +369,8 @@ class MuZero:
 
         for i in range(self.number_layers_prediction_function):
             model_prediction = Dense(self.number_neurons_prediction_function, activation="relu")(model_prediction)
-            if i != self.number_layers_prediction_function-1:
-                model_prediction = BatchNormalization()(model_prediction)
+            """ if i != self.number_layers_prediction_function-1:
+                model_prediction = BatchNormalization()(model_prediction) """
 
         model_prediction_policy = Dense(self.dim_prediction_function_policy, activation="softmax")(model_prediction)
         model_prediction_value = Dense(1, activation="linear")(model_prediction)
@@ -355,8 +384,8 @@ class MuZero:
 
         for i in range(self.number_layers_dynamic_function):
             model_dynamic = Dense(self.number_neurons_dynamic_function, activation="relu")(model_dynamic)
-            if i != self.number_layers_dynamic_function:
-                model_dynamic = BatchNormalization()(model_dynamic)
+            """ if i != self.number_layers_dynamic_function:
+                model_dynamic = BatchNormalization()(model_dynamic) """
 
         model_dynamic_s1 = Dense(self.dim_hidden_state)(model_dynamic)
         model_dynamic_reward = Dense(1, activation="linear")(model_dynamic)
@@ -421,13 +450,13 @@ class MuZero:
     def play_game(self, env, m):
         game = GamePlay(env, discount=0.997)
         while not game.terminal():
-            self.env.render()
             cc = random.random()
             if cc < 0.05:
                 policy = [1/m.a_dim]*m.a_dim
             else:
                 policy, _ = self.mcts.mcts_search(m, game.observation, 50)
             game.act_with_policy(policy)
+            self.env.render()
         return game
 
     def bstack(self, bb):
@@ -463,37 +492,99 @@ class MuZero:
         X[0] = np.reshape(X[0],(len(X[0]), 4, 4))
         X[1] = np.reshape(X[1],(len(X[0]), 2, 2))
 
-        Y[0], Y[1] = Y[1], Y[0]
-        Y[3], Y[4] = Y[4], Y[3]
-        Y[6], Y[7] = Y[7], Y[6]
-        Y[9], Y[10] = Y[10], Y[9]
-        Y[12], Y[13] = Y[13], Y[12]
-        Y[15], Y[16] = Y[16], Y[15]
-        """ X = np.array(X)
-        Y = np.array(Y) """
-        #l = self.model.fit(X, Y, verbose=0, batch_size=1)
+        for i in range((self.K+1)):
+            Y[i*3], Y[i*3+1] = Y[i*3+1], Y[i*3]
+
         l = self.model.train_on_batch(X,Y)
         self.losses.append(l)
         return l
 
     def train_v1(self, window_size, train_episodes, nr_train_on_batch_samples):
         self.replay_buffer = ReplayBuffer(window_size, self.batch_size, self.K)
-        rews = []
+        self.tot_reward = []
+        self.game_history = []
+        self.len_actions_taken = []
+        self.actions_true = []
+        self.actions_false = []
+        self.full_lines = []
 
         for train_episode in range(train_episodes):
             game = self.play_game(self.env, self)
             self.replay_buffer.save_game(game)
             for i in range(nr_train_on_batch_samples):
                 self.train_on_batch(self.replay_buffer.sample_batch())
-            rew = sum(game.rewards)
-            rews.append(rew)
-            print(len(game.history), rew, collections.Counter(game.history), self.losses[-1][0])
+            reward = sum(game.rewards)
+            self.tot_reward.append(reward)
+            game_history = collections.Counter(game.history)
+            self.game_history.append(game_history)
+            len_actions_taken = len(game.history)
+            self.len_actions_taken.append(len_actions_taken)
+            self.actions_true.append(game.actions_true)
+            self.actions_false.append(game.actions_false)
+            self.full_lines.append(game.full_lines)
+            print(train_episode, len_actions_taken, reward, game_history, self.losses[-1][0])
+
+            if train_episode%250 == 0:
+                self.save_model()
+    
+
+    def create_standard_shape(self, shape):
+        standard_shape = np.zeros((2, 2))
+        for index_row, row in enumerate(shape.shape):
+            for index_col, col in enumerate(row):
+                standard_shape[index_row, index_col] = 1 if col > 0 else 0
+        standard_shape = np.array(standard_shape, dtype=np.float)
+        standard_shape = np.resize(standard_shape, (2, 2, 1))
+        standard_shape /= 10
+        return standard_shape
+
+    def number_to_arc(self, number: int):
+        a = 0 if number <= 15 else 1 if number <= 31 else 2
+        #number = number if a==0 else number - 36 if a==1 else number - 72
+        r = math.floor(number/4)
+        c = number if r == 0 else number - (4 * r)
+        return a, r, c
+
+    def play(self):
+        _ = self.env.reset()
+
+        state = self.env.game_env
+        state[state > 0] = 1
+        state[state <= 0] = 0
+        state = np.resize(state, (4, 4, 1))
+        shapes_queue = self.env.shapes_queue[0]
+        shapes_queue = self.create_standard_shape(shapes_queue)
+        observation = [state, shapes_queue]
+        done = False
+        while not done:
+            p_0, _ = self.mcts.mcts_search(self, observation, 50)
+            a_1 = np.random.choice(list(range(len(p_0))), p=p_0)
+            hidden_state = self.ht(observation)
+            hidden_state_np = np.array([hidden_state])
+            _, v_0 = self.ft(hidden_state_np)
+
+            action_shape, action_row, action_col = self.number_to_arc(a_1)
+            r, full_lines, state_new, done, shapes_queue_new, uid = self.env.step(self.env.shapes_queue[action_shape], action_row, action_col)
+            shapes_queue_new = self.create_standard_shape(shapes_queue_new[0])
+            state_new[state_new > 0] = 1
+            state_new[state_new <= 0] = 0
+            state_new = np.resize(state_new, (4, 4, 1))
+            observation = [state_new, shapes_queue_new]
+            
+            self.env.render()
+            print(a_1, v_0, r)
+        
+        print("Done!")
 
 
 
-learning_rate = 0.01
-replay_memory_size = 500000
-batch_size = 2048
-test = MuZero(learning_rate, replay_memory_size, batch_size, 5)
+learning_rate = 0.0001
+replay_memory_size = 500
+batch_size = 128
+test = MuZero(learning_rate, replay_memory_size, batch_size, 3, 8083)
 
-test.train_v1(50, 10, 10)
+window_size: int = 200
+train_episodes: int = 10000
+train_from_batch: int = 21
+test.train_v1(window_size, train_episodes, train_from_batch)
+test.play()

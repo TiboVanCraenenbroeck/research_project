@@ -76,12 +76,11 @@ class Game:
             self.shapes.append(Shape(2, 2, [[4, 4], [-1, 4]]))
             self.shapes.append(Shape(2, 2, [[-1, 4], [4, 4]]))
 
-
-        """ 
-            xx
-            xx
-         """
-        self.shapes.append(Shape(2, 2, [[5, 5], [5, 5]]))
+            """ 
+                xx
+                xx
+            """
+            self.shapes.append(Shape(2, 2, [[5, 5], [5, 5]]))
 
         """ x """
         self.shapes.append(Shape(1, 1, [[6]]))
@@ -89,7 +88,7 @@ class Game:
 
         """ xx """
         self.shapes.append(Shape(1, 2, [[8, 8]]))
-        self.shapes.append(Shape(2, 1, [[8], [8]]))
+        self.shapes.append(Shape(2, 1, [[8], [8]])) 
 
     
     def check_on_full_lines(self):
@@ -197,38 +196,6 @@ class Game:
         # Check if the user will see the changes in the app
         if self.game_view.render:
             self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
-
-"""         display.clear_output(wait=True)
-        print(self.game_env)
-        print(self.total_reward)
-        print(self.shapes_queue) """
-
-""" a = Game()
-eel.sleep(3)
-a.render()
-eel.sleep(3) """
-
-"""eel.sleep(3)
-a.step(a.shapes_queue[0], 0, 1)
-
-a.render()
-eel.sleep(3)
-a.step(a.shapes_queue[0], 5, 5)
-a.render()"""
-
-
-""" while a.game_play:
-    input_shape: int = int(input("Select a shape (0, 1, 2): "))
-    input_place_row: int = int(input("Row: "))
-    input_place_col: int = int(input("Col: "))
-    a.step(a.shapes_queue[input_shape], input_place_row, input_place_col)
-    a.render()
-    eel.sleep(1)
-
-
-
-while True:
-    eel.sleep(1) """
 
 
 # TODO: Render function on and off --> To slow

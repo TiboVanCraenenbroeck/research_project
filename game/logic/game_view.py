@@ -61,6 +61,7 @@ class GameView:
     def change_render_state():
         GameView.render = not GameView.render
         eel.changedRender(GameView.render)
+        print(GameView.render)
 
 
     def create_img(self, type: str, body: str, width: int, uid:str, name: str = "") -> None:

@@ -411,6 +411,10 @@ input:disabled {
 /*------------------------------------*\
 #COMPONENTS
 \*------------------------------------*/
+.c-menu{
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+}
 .c-game {
   --game--size: 33rem;
 

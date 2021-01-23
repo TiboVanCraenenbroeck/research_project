@@ -48,22 +48,26 @@ input_shape = Input(shape=(2, 2, 1))
 
 # Hidden state
 
-model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
-model_game_grid = Flatten()(model_game_grid)
-model_game_grid = Dense(32, activation="relu")(model_game_grid)
-model_game_grid = Dense(32, activation="relu")(model_game_grid)
+""" model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid) """
+model_game_grid = Flatten()(input_game_grid)
+""" model_game_grid = Dense(32, activation="relu")(model_game_grid)
+model_game_grid = Dense(32, activation="relu")(model_game_grid) """
 model_game_grid = Model(inputs=[input_game_grid], outputs=[model_game_grid])
 
-model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape)
-model_shape = Flatten()(model_shape)
-model_shape = Dense(8, activation="relu")(model_shape)
-model_shape = Dense(8, activation="relu")(model_shape)
+""" model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape) """
+model_shape = Flatten()(input_shape)
+""" model_shape = Dense(8, activation="relu")(model_shape)
+model_shape = Dense(8, activation="relu")(model_shape) """
 model_shape = Model(inputs=[input_shape], outputs=[model_shape])
 
 model_hidden_state = concatenate([model_game_grid.output, model_shape.output])
 
 model_hidden_state = Dense(dim_hidden_state)(model_hidden_state)
 model_hidden_state = Model(inputs=[input_game_grid, input_shape], outputs=[model_hidden_state])
+#model_hidden_state = Dense(8)(model_hidden_state)
+
+model_hidden_state.compile(loss="mse")
+model_hidden_state.save("test_123.h5")
 
 
 # Policy/value model --> Prediction function

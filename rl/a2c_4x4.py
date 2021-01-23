@@ -47,14 +47,12 @@ class A2C:
             Path(self.base_path).mkdir(parents=True, exist_ok=True)
         else:
             self.agent_name = path
-            self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"
+            self.base_path = f"{BASE_DIR}/start_models/a2c/{self.agent_name}"            
 
             self.actor_nn = keras.models.load_model(
                 f"{self.base_path}/actor_nn.h5")
-            self.actor_learn_nn = keras.models.load_model(
-                f"{self.base_path}/actor_learn_nn.h5")
-            self.critic_nn = keras.models.load_model(
-                f"{self.base_path}/critic_nn.h5")
+            self.actor_learn_nn.load_weights(f"{self.base_path}/actor_learn_nn.h5")
+            self.critic_nn = keras.models.load_model(f"{self.base_path}/critic_nn.h5")
             with open(f'{BASE_DIR}/history_data/REINFORCE/game_history_data_{self.agent_name}.pkl', 'rb') as f:
                 self.stats = pickle.load(f)
 
@@ -90,6 +88,7 @@ class A2C:
         input_shape = Input(shape=(2, 2, 1))
         input_delta = Input(shape=[1])
 
+
         def custom_actor_loss(y_true, y_pred):
             out = K.clip(y_pred, 1e-8, 1-1e-8)
             log_lik = y_true*K.log(out)
@@ -99,7 +98,6 @@ class A2C:
         model_game_grid = Conv2D(8, (3, 3), activation="relu")(input_game_grid)
         model_game_grid = Flatten()(model_game_grid)
         model_game_grid = Dense(32, activation="relu")(model_game_grid)
-        model_game_grid = Dense(32, activation="relu")(model_game_grid)
         """ model_game_grid = Dense(128, activation="relu")(model_game_grid)
         model_game_grid = Dense(128, activation="relu")(model_game_grid) """
         model_game_grid = Model(
@@ -108,16 +106,15 @@ class A2C:
         model_shape = Conv2D(8, (2, 2), activation="relu")(input_shape)
         model_shape = Flatten()(model_shape)
         model_shape = Dense(8, activation="relu")(model_shape)
-        model_shape = Dense(8, activation="relu")(model_shape)
         """ model_shape = Dense(72, activation="relu")(model_shape)
         model_shape = Dense(72, activation="relu")(model_shape) """
         model_shape = Model(inputs=[input_shape], outputs=[model_shape])
 
         model = concatenate([model_game_grid.output, model_shape.output])
 
-        model = Dense(40, activation="relu")(model)
-        model = Dense(40, activation="relu")(model)
-        model = Dense(40, activation="relu")(model)
+        model = Dense(80, activation="relu")(model)
+        model = Dense(80, activation="relu")(model)
+        model = Dense(80, activation="relu")(model)
 
         actor = Dense(self.number_actions, activation="softmax")(model)
         critic = Dense(1, activation="linear")(model)
@@ -279,5 +276,10 @@ class A2C:
 lr_actor = 1e-3
 lr_critic = 1e-3
 gamma: float = 0.99
-agent = A2C(16, lr_actor, lr_critic, gamma, 8081)
-agent.train(1000000)
+agent = A2C(16, lr_actor, lr_critic, gamma, 8083)
+try:
+    agent.train(1000000)
+except KeyboardInterrupt:
+    agent.save_model()
+    print("Saved!")
+    input_close = input("Press enter for closing this agent...")
