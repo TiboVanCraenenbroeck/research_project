@@ -42,10 +42,13 @@ class GameView:
 
 
     def start(self, port):
-        hostname = socket.gethostname()
-        ip = socket.gethostbyname(hostname)
         html_file: str = "index.html" if self.env_size == 10 else "index_6.html" if self.env_size == 6 else "index_4.html"
-        eel.start(html_file, port=port, host=ip, block=False)
+        try:
+            hostname = socket.gethostname()
+            ip = socket.gethostbyname(hostname)
+            eel.start(html_file, port=port, host=ip, block=False)
+        except:
+            eel.start(html_file, port=port, block=False)
         eel.sleep(1)
 
 

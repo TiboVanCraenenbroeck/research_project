@@ -1,0 +1,6 @@
+numpy
+IPython
+eel
+imgkit
+tensorflow
+opencv-python
