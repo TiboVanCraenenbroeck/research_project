@@ -1,26 +1,10 @@
-let domGameGrid, domGameGridCell, domTotScore, domShapeQueue, domBtnRender;
+let domGameGrid, domGameGridCell, domTotScore, domShapeQueue;
 let domLoaded = false, render = true;
 
 eel.expose(startFront);
 function startFront(data) {
   loadDom();
-  domBtnRender.addEventListener('click', changeRenderBtn);
 }
-const changeRenderBtn = function(){
-  // Change the bool
-  eel.change_render_state()
-};
-eel.expose(changedRender)
-function changedRender(data){
-  // Set the var to the backend-var
-  render = data
-  // Change the text in the btn
-  if(render){
-    domBtnRender.innerHTML = "On";
-  }else{
-    domBtnRender.innerHTML = "Off";
-  }
-};
 const changeGrid = async function (grid) {
   const gridJson = JSON.parse(grid);
   if (domLoaded) {
@@ -83,7 +67,6 @@ const loadDom = function () {
   domGameGridCell = document.querySelectorAll(".js-game-grid--cell");
   domTotScore = document.querySelector(".js-tot-score");
   domShapeQueue = document.querySelectorAll(".js-game-shapes-queue--shape");
-  domBtnRender = document.querySelector(".js-render");
   domLoaded = true;
 };
 document.addEventListener("DOMContentLoaded", function () {

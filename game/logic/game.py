@@ -193,11 +193,8 @@ class Game:
     def render(self) -> None:
         game_env = json.dumps(self.game_env.tolist())
         shape_queue: list = [{"nr_rows": sq.nr_rows, "nr_cols": sq.nr_cols, "shape": sq.shape} for sq in self.shapes_queue]
-        # Check if the user will see the changes in the app
-        if self.game_view.render:
-            self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
+        self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
 
 
-# TODO: Render function on and off --> To slow
 # TODO: Naam teruggeven bij het maken van een nieuwe map
 # TODO: game_state --> Als er geen acties meer mogelijk zijn --> Deze op false zetten

@@ -25,7 +25,6 @@ https://nitratine.net/blog/post/python-gui-using-chrome/
 
 
 class GameView:
-    render: bool = True
     def __init__(self, create_screenshot_check: bool = True, port: int = 80, env_size: int = 10):
         self.env_size = env_size
         self.create_screenshot_check = create_screenshot_check
@@ -56,13 +55,6 @@ class GameView:
     
     def change_game_view(self, grid, score, shape_queue):
         eel.changeGameGrid(grid, score, shape_queue)
-    
-    @eel.expose
-    def change_render_state():
-        GameView.render = not GameView.render
-        eel.changedRender(GameView.render)
-        print(GameView.render)
-
 
     def create_img(self, type: str, body: str, width: int, uid:str, name: str = "") -> None:
         config = imgkit.config(wkhtmltoimage='C:/Program Files/wkhtmltopdf/bin/wkhtmltoimage.exe')

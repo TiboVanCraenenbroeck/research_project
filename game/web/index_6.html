@@ -14,7 +14,7 @@
         .c-game-grid {
             grid-template-columns: repeat(6, auto);
             grid-template-rows: repeat(6, auto);
-            }
+        }
     </style>
 
     <!-- Scripts -->
@@ -23,132 +23,133 @@
 </head>
 
 <body>
-    <!-- Menu -->
-    <div class="c-menu">
-        <span>Render:</span><button class="js-render">On</button>
-        <span>Total points:</span><span class="js-tot-score"></span>
-    </div>
-    <div class="c-game">
-        <!-- Game Grid - 6x6-->
-        <div class="c-game-grid js-game-grid">
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">0</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">1</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">2</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">3</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">4</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">5</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">6</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">7</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">8</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">9</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">10</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">11</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">12</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">13</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">14</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">15</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">16</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">17</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">18</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">19</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">20</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">21</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">22</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">23</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">24</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">25</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">26</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">27</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">28</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">29</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">30</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">31</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">32</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">33</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">34</div>
-            <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">35</div>
+    <div class="o-container">
+        <!-- Menu -->
+        <div class="c-menu">
+            <span>Total points:</span><span class="js-tot-score"></span>
         </div>
-        <div class="c-game-shapes-queue">
-            <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+        <div class="c-game">
+            <!-- Game Grid - 6x6-->
+            <div class="c-game-grid js-game-grid">
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">0</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">1</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">2</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">3</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">4</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">5</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">6</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">7</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">8</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">9</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">10</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">11</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">12</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">13</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">14</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">15</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">16</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">17</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">18</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">19</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">20</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">21</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">22</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">23</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">24</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">25</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">26</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">27</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">28</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">29</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">30</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">31</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">32</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">33</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">34</div>
+                <div class="c-game-grid--cell c-cell--color js-game-grid--cell" data-shape-nr="0">35</div>
             </div>
-            <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-            </div>
-            <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
-                <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+            <div class="c-game-shapes-queue">
+                <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                </div>
+                <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                </div>
+                <div class="c-game-shapes-queue--shape js-game-shapes-queue--shape">
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                    <div class="c-queue-shape--shape c-cell--color" data-shape-nr="0"></div>
+                </div>
             </div>
         </div>
     </div>

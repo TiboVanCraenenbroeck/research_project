@@ -9,10 +9,10 @@
 /* https://mycolor.space/?hex=%2314202E&sub=1 */
 :root {
   /* colors */
-  --global-color--white: white;
-  --global-color--dark: #14202e;
-  --global-textColor: var(--global-color--dark);
-  --global-backgroundColor: var(--global-color--white);
+  --global-color--white: #DFF1FF;
+  --global-color--dark: #131C2A;
+  --global-textColor: var(--global-color--white);
+  --global-backgroundColor: var(--global-color--dark);
 
   --global-width: 100%;
   --global-transition: all 200ms ease-in;
@@ -306,7 +306,7 @@ input:disabled {
 .o-container {
   margin-left: auto;
   margin-right: auto;
-  max-width: 62rem;
+  max-width: 49rem;
   width: 100%;
   padding: auto 3rem auto 3rem;
 }
@@ -415,6 +415,9 @@ input:disabled {
   margin-top: 0.3rem;
   margin-bottom: 0.3rem;
 }
+.c-tot-score{
+  margin-left: 1rem;
+}
 .c-game {
   --game--size: 33rem;
 
@@ -444,45 +447,59 @@ input:disabled {
 }
 
 .c-game-grid--cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   border: none;
   border-radius: 8px;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.4);
 
   margin: 0.2rem;
 }
+.c-cell--color{
+  --cel-color--bg: var(--global-color--dark);
+  --cell-color--dark: #3F4757;
+  --cell-color--light: #DFF1FF;
+}
 
 .c-cell--color[data-shape-nr="-1"] {
-  background-color: white;
+  background-color: var(--cel-color--bg);
+  border: 1px solid var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="0"] {
-  background-color: white;
+  background-color: var(--cel-color--bg);
+  border: 1px solid var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="1"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="2"] {
-  background-color: green;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="3"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="4"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="5"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="6"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="7"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="8"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
 }
 .c-cell--color[data-shape-nr="9"] {
-  background-color: red;
+  background-color: var(--cell-color--dark);
+}
+.c-game-shapes-queue{
+  background-color: var(--global-backgroundColor);
 }
 
 .c-game-shapes-queue--shape{
@@ -493,12 +510,16 @@ input:disabled {
 
   width: 108px;
   height: 108px;
+
 }
 .c-queue-shape--shape{
   border: none;
   border-radius: 4px;
   width: 1rem;
   height: 1rem;
+}
+.c-queue-shape--shape.c-cell--color[data-shape-nr="0"]{
+  border: none;
 }
 /*------------------------------------*\
 #UTILITIES
