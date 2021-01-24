@@ -181,7 +181,6 @@ class Game:
             self.remove_shape(shape)
             self.get_random_shapes()
 
-        # TODO: Check function that checks if there is enough space for the shapes
         full_lines: int = self.check_on_full_lines()
         reward += full_lines
         done = self.check_if_user_can_place_the_shapes()
@@ -195,6 +194,3 @@ class Game:
         shape_queue: list = [{"nr_rows": sq.nr_rows, "nr_cols": sq.nr_cols, "shape": sq.shape} for sq in self.shapes_queue]
         self.game_view.change_game_view(game_env, self.total_reward, shape_queue)
 
-
-# TODO: Naam teruggeven bij het maken van een nieuwe map
-# TODO: game_state --> Als er geen acties meer mogelijk zijn --> Deze op false zetten

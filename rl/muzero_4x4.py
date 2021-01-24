@@ -1,6 +1,6 @@
 import random
 import tensorflow as tf
-try
+try:
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 except:
@@ -69,10 +69,9 @@ class ReplayBuffer:
             while len(x) < s:
                 x.append(-1)
             return x
-        test = [(g.make_image(i), xtend(g,g.history[i:i + self.num_unroll_steps], self.num_unroll_steps),
+        return [(g.make_image(i), xtend(g,g.history[i:i + self.num_unroll_steps], self.num_unroll_steps),
                     g.make_target(i, self.num_unroll_steps))
                     for (g, i) in game_pos]
-        return test
 
     def sample_game(self):
         return random.choice(self.buffer)
@@ -135,7 +134,7 @@ class GamePlay:
         if reward <= 0:
             self.negative_rewards += 1
             reward = -1
-            if self.negative_rewards >= 3:
+            if self.negative_rewards >= 10:
                 done = True
         elif reward > 0 and self.negative_rewards > 0:
             self.negative_rewards = 0
@@ -236,6 +235,12 @@ class MCTS:
         hidden_state_np = np.array([root.hidden_state])
         policy, value = m.ft(hidden_state_np)
 
+        if min(hidden_state_np[0])>-100.0:
+            pass
+        else:
+            print("hier")
+            root.hidden_state = m.ht(observation)
+
         # expand the children of the root node
         for i in range(policy.shape[0]):
             root.children[i] = Node(policy[i])
@@ -298,12 +303,12 @@ class MCTS:
         return e_x / e_x.sum()
 
 class MuZero:
-    def __init__(self, learning_rate: float, replay_memory_size: int, batch_size:int, K: int, port: int = 8080):
+    def __init__(self, learning_rate: float, batch_size:int, K: int, port: int = 8080, nr_simulations: int = 10):
         self.learning_rate = learning_rate
         self.a_dim = 16
         self.with_policy = True
 
-        self.start(replay_memory_size, batch_size, K)
+        self.start(batch_size, K, nr_simulations)
 
         self.nn_hidden_state, self.nn_prediction, self.nn_dynamic = self.build_nn()
         self.make_model()
@@ -320,7 +325,7 @@ class MuZero:
         with open(f'{self.base_path}/game_history.pkl', 'wb') as f:
             pickle.dump(history, f)
 
-    def start(self, replay_memory_size, batch_size, K):
+    def start(self, batch_size, K, nr_simulations):
         self.agent_name = f"v_{datetime.now().strftime('%d_%m_%y__%H_%M%S')}"
         self.base_path = f"{BASE_DIR}/start_models/muzero/{self.agent_name}"
         Path(self.base_path).mkdir(parents=True, exist_ok=True)
@@ -329,18 +334,19 @@ class MuZero:
         self.dim_prediction_function_policy: int = 16
         self.dim_dynamic_function_current_action: int = 16
 
-        self.number_layers_prediction_function: int = 3
+        self.number_layers_prediction_function: int = 10
         self.number_layers_dynamic_function: int = 3
 
-        self.number_neurons_prediction_function: int = 40
-        self.number_neurons_dynamic_function: int = 72
+        self.number_neurons_prediction_function: int = 20
+        self.number_neurons_dynamic_function: int = 36
 
         self.batch_size = batch_size
 
         self.K = K
 
-        self.replay_memory = collections.deque(maxlen=replay_memory_size)
         self.losses = []
+
+        self.nr_simulations = nr_simulations
     
     def build_nn(self):
         # Input
@@ -429,6 +435,7 @@ class MuZero:
     def ht(self, o_0):
         o_0_state = np.array([o_0[0]])
         o_0_shape = np.array([o_0[1]])
+        test = self.nn_hidden_state.predict([o_0_state, o_0_shape])
         return self.nn_hidden_state.predict([o_0_state, o_0_shape])[0]
         #return self.nn_hidden_state.predict(np.array(o_0)[None])[0]
 
@@ -457,7 +464,7 @@ class MuZero:
             if cc < 0.05:
                 policy = [1/m.a_dim]*m.a_dim
             else:
-                policy, _ = self.mcts.mcts_search(m, game.observation, 50)
+                policy, _ = self.mcts.mcts_search(m, game.observation, self.nr_simulations)
             game.act_with_policy(policy)
             self.env.render()
         return game
@@ -560,7 +567,7 @@ class MuZero:
         observation = [state, shapes_queue]
         done = False
         while not done:
-            p_0, _ = self.mcts.mcts_search(self, observation, 50)
+            p_0, _ = self.mcts.mcts_search(self, observation, self.nr_simulations)
             a_1 = np.random.choice(list(range(len(p_0))), p=p_0)
             hidden_state = self.ht(observation)
             hidden_state_np = np.array([hidden_state])
@@ -581,12 +588,12 @@ class MuZero:
 
 
 
-learning_rate = 0.0001
-replay_memory_size = 500
-batch_size = 128
-test = MuZero(learning_rate, replay_memory_size, batch_size, 3, 8083)
+learning_rate = 0.01
+batch_size = 512
+num_simulations = 10
+test = MuZero(learning_rate, batch_size, 3, 8083, num_simulations)
 
-window_size: int = 200
+window_size: int = 10000
 train_episodes: int = 10000
 train_from_batch: int = 21
 test.train_v1(window_size, train_episodes, train_from_batch)

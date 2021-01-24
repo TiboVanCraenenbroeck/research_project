@@ -115,9 +115,9 @@ class A2C:
 
         model = concatenate([model_game_grid.output, model_shape.output])
 
-        model = Dense(80, activation="relu")(model)
-        model = Dense(80, activation="relu")(model)
-        model = Dense(80, activation="relu")(model)
+        model = Dense(100, activation="relu")(model)
+        model = Dense(100, activation="relu")(model)
+        model = Dense(100, activation="relu")(model)
 
         actor = Dense(self.number_actions, activation="softmax")(model)
         critic = Dense(1, activation="linear")(model)
@@ -193,13 +193,13 @@ class A2C:
         if reward <= 0:
             negative_rewards += 1
             reward = -1
-            if negative_rewards >= 3:
+            if negative_rewards >= 10:
                 done = True
         elif reward > 0 and negative_rewards > 0:
             negative_rewards = 0
-            reward = 1
+            reward = 3
         else:
-            reward = 1
+            reward = 3
         reward += full_lines * 10
         done = done_old if done_old else done
         return reward, negative_rewards, done
@@ -279,7 +279,7 @@ class A2C:
 lr_actor = 1e-3
 lr_critic = 1e-3
 gamma: float = 0.99
-agent = A2C(16, lr_actor, lr_critic, gamma, 8083)
+agent = A2C(16, lr_actor, lr_critic, gamma, 8081)
 try:
     agent.train(1000000)
 except KeyboardInterrupt:
